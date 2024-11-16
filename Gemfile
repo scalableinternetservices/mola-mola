@@ -6,7 +6,7 @@ gem "rails", "~> 7.1.2"
 
 gem "sprockets-rails"
 
-gem "pg", "~> 1.1.0"
+gem 'pg', '>= 1.4.0'
 
 # Check the latest supported [https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html#platforms-supported.ruby]
 gem "puma", ">= 5.0"
