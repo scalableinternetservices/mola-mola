@@ -134,6 +134,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.7-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.16.7-x86_64-linux)
+      racc (~> 1.4)
     pg (1.5.9)
     psych (5.2.0)
       stringio
@@ -212,12 +214,13 @@ GEM
 PLATFORMS
   aarch64-linux
   arm64-darwin-23
+  x86_64-linux
 
 DEPENDENCIES
   bootsnap
   debug
   importmap-rails
-  pg (>= 1.4.0)
+  pg (~> 1.5.9)
   puma (>= 5.0)
   rails (~> 7.1.2)
   sprockets-rails
