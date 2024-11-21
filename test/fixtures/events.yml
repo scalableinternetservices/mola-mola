@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  date: 2024-11-21 21:46:30
+  host: one
+
+two:
+  title: MyString
+  date: 2024-11-21 21:46:30
+  host: two

@@ -10,8 +10,63 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 0) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_21_215425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "comments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "event_id", null: false
+    t.string "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_comments_on_event_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.string "title"
+    t.datetime "date"
+    t.bigint "host_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["host_id"], name: "index_events_on_host_id"
+  end
+
+  create_table "invites", force: :cascade do |t|
+    t.bigint "inviter_id", null: false
+    t.bigint "invitee_id", null: false
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_invites_on_event_id"
+    t.index ["invitee_id"], name: "index_invites_on_invitee_id"
+    t.index ["inviter_id"], name: "index_invites_on_inviter_id"
+  end
+
+  create_table "rsvps", force: :cascade do |t|
+    t.string "response"
+    t.bigint "user_id", null: false
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_rsvps_on_event_id"
+    t.index ["user_id"], name: "index_rsvps_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "email"
+    t.string "password_digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_foreign_key "comments", "events"
+  add_foreign_key "comments", "users"
+  add_foreign_key "events", "users", column: "host_id"
+  add_foreign_key "invites", "events"
+  add_foreign_key "invites", "users", column: "invitee_id"
+  add_foreign_key "invites", "users", column: "inviter_id"
+  add_foreign_key "rsvps", "events"
+  add_foreign_key "rsvps", "users"
 end

@@ -8,6 +8,10 @@ gem "sprockets-rails"
 
 gem "pg", "~> 1.5.9"
 
+# Used to securely hash user password
+# How to specify salt by the way?
+gem 'bcrypt', '~> 3.1.7'
+
 # Check the latest supported [https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html#platforms-supported.ruby]
 gem "puma", ">= 5.0"
 
