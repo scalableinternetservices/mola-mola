@@ -15,9 +15,6 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: <%= ENV.fetch("PGHOST") { "db" } %>
-  password: postgres
-  username: postgres
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
@@ -28,11 +25,6 @@ default: &default
 development:
   <<: *default
   database: molamola_development
-  database: <%= ENV['RDS_DB_NAME'] %>
-  host: <%= ENV['RDS_HOSTNAME'] %>
-  password: <%= ENV['RDS_PASSWORD'] %>
-  port: <%= ENV['RDS_PORT'] %>
-  username: <%= ENV['RDS_USERNAME'] %>
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -90,6 +82,8 @@ test:
 #
 production:
   <<: *default
-  database: molamola_production
-  username: molamola
-  password: <%= ENV["MOLAMOLA_DATABASE_PASSWORD"] %>
+  database: <%= ENV['RDS_DB_NAME'] %>
+  host: <%= ENV['RDS_HOSTNAME'] %>
+  password: <%= ENV['RDS_PASSWORD'] %>
+  port: <%= ENV['RDS_PORT'] %>
+  username: <%= ENV['RDS_USERNAME'] %>
