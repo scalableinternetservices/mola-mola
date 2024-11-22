@@ -24,7 +24,7 @@ module Api
         # PUT /api/users/:id
         # Update the user status with the given ID, only when the user themselves are logged in
         def update
-            if @user.id == params[:id]
+            if String(@user.id) == params[:id]
                 begin
                     @user.update(user_params)
                     render json: @user, status: :ok # Successfully updated, return updated user status
@@ -39,11 +39,11 @@ module Api
         # DELETE /api/users/:id
         # Delete the user with the given ID, only when the user themselves are logged in
         def destroy
-            if @user.id == params[:id]
+            if String(@user.id) == params[:id]
                 @user.destroy # TODO: will destroy fail? handle it if needed?
                 render json: { message: 'User deleted' }, status: :ok
             else
-                render json: { error: 'Unauthorized' }, status: :unauthorized
+                render json: { error: 'Unauthorized: deleting someone else' }, status: :unauthorized
             end
         end
 
