@@ -3,14 +3,18 @@ module Api
         skip_before_action :authenticate, only: [:index, :show]
 
         # GET /api/users
-        # Return a list of all users, does not require authentication
+        # Return the list of all users, does not require authentication
+        # Success: return the list of all users
         def index
-            @users = User.all
-            render json: @users, status: :ok
+            users = User.all
+            render json: users, status: :ok
         end
 
         # GET /api/users/:id
         # Return the user with the given ID, does not require authentication
+        # Success: return the user
+        #   User not found: return 404 Not Found
+        #   Other exceptions: return 500 Internal Server Error TODO: what could be other exceptions?
         def show
             begin
                 user = User.find(params[:id])
@@ -23,6 +27,9 @@ module Api
 
         # PUT /api/users/:id
         # Update the user status with the given ID, only when the user themselves are logged in
+        # Success: return the updated user status
+        #   Updating someone else: return 401 Unauthorized
+        #   Update failed: return 400 Bad Request
         def update
             if String(@user.id) == params[:id]
                 begin
@@ -38,6 +45,9 @@ module Api
 
         # DELETE /api/users/:id
         # Delete the user with the given ID, only when the user themselves are logged in
+        # Success: return a message 'User deleted'
+        #   Deleting someone else: return 401 Unauthorized
+        #   Delete failed: return 400 Bad Request
         def destroy
             if String(@user.id) == params[:id]
                 @user.destroy # TODO: will destroy fail? handle it if needed?
