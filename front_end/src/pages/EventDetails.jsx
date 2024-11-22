@@ -31,7 +31,7 @@ function EventDetails() {
 
   const shareUrl = `${window.location.origin}/events/${event.id}`;
   const title = event.title;
-  const isRSVPed = event.rsvps.includes(user?.id);
+  const isRSVPed = (event.rsvps || []).includes(user?.id || 0);
 
   const handleRSVP = () => {
     if (user) {
@@ -46,10 +46,12 @@ function EventDetails() {
     user?.followedUsers?.includes(userId)
   );
 
+  const eventImage = event.image || '/images/placeholder.png';
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Event Image */}
-      <img src={event.image} alt={event.title} className="w-full h-96 object-cover rounded-md mb-6" />
+      <img src={eventImage} alt={event.title} className="w-full h-96 object-cover rounded-md mb-6" />
       {/* Event Title and Share Buttons */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold">{event.title}</h2>

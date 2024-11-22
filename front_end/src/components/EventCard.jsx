@@ -17,11 +17,13 @@ function EventCard({ event }) {
         alert('Please log in to RSVP.');
       }
     };
+
+    const eventImage = event.image || '/images/placeholder.png';
   
     return (
       <div className="mb-6 bg-white shadow-md rounded-md overflow-hidden">
         <Link to={`/events/${event.id}`}>
-          <img src={event.image} alt={event.title} className="w-full h-64 object-cover" />
+          <img src={eventImage} alt={event.title} className="w-full h-64 object-cover" />
         </Link>
         <div className="p-4">
           <h3 className="text-2xl font-bold">

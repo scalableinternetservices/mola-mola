@@ -43,6 +43,10 @@ function CreateEvent() {
         return;
     }
 
+    const imageUrl = image
+    ? URL.createObjectURL(image)
+    : '/images/placeholder.png'; // Use your placeholder image path
+
     const newEvent = {
       id: Date.now(), // Unique ID
       title,
@@ -50,9 +54,10 @@ function CreateEvent() {
       date,
       time,
       location,
-      image: URL.createObjectURL(image),
+      image: imageUrl,
       categories: selectedTags,
       rsvp: false,
+      rsvps: [],
     };
 
     // For now, log the event data
