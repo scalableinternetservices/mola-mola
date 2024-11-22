@@ -8,6 +8,7 @@ import Account from './pages/Account'
 import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import CreateEvent from './pages/CreateEvent';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         {/* Add more routes as needed */}
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/events/create" element={<CreateEvent />} />
+	<Route path="*" element={<NotFound />} /> 	
       </Routes>
     </BrowserRouter>
   );
