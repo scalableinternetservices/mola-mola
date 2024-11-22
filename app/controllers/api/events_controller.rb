@@ -1,6 +1,8 @@
 module Api
   class EventsController < ApplicationController
-    skip_before_action :authenticate, only: [:index, :show, :create]
+    skip_before_action :authenticate, only: [:index, :show]
+    before_action :set_event, only: [:show, :update, :destroy]
+    before_action :authorize_host!, only: [:update, :destroy]
     # GET /api/events
     def index
       @events = Event.all
@@ -16,6 +18,7 @@ module Api
     # POST /api/events
     def create
       @event = Event.new(event_params)
+      @event.host_id = @user.id
       if @event.save
         render json: @event, status: :created
       else
@@ -41,6 +44,19 @@ module Api
     end
 
     private
+
+    # Find the event by ID
+    def set_event
+      @event = Event.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: "Event not found" }, status: :not_found
+    end
+    
+    def authorize_host!
+      unless @event.host_id == @user.id
+        render json: { error: "You are not authorized to perform this action" }, status: :forbidden
+      end
+    end
 
     # Strong parameters to whitelist event fields
     def event_params
