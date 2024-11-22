@@ -17,12 +17,12 @@ function LoginModal({ onClose }) {
 
     // Simulate authentication
     setTimeout(() => {
-      const dummyEmail = 'user@example.com';
-      const dummyPassword = 'password123';
+      const dummyEmail = 'a@b.c';
+      const dummyPassword = 'test';
       const dummyUsername = 'JohnDoe';
       if (email === dummyEmail && password === dummyPassword) {
         // Successful login
-        login({ email, username: dummyUsername, followedUsers: [2, 3] });
+        login({ email, username: dummyUsername, followedUsers: [2, 3], id: 5 });
         onClose();
       } else {
         setError('Invalid email or password');

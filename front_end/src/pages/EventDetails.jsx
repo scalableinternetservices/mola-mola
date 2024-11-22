@@ -2,8 +2,7 @@ import React, { useState, useEffect,useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { eventsData } from '../mockdata/eventsData'; // Use real data when integrating backend
 import { usersData } from '../mockdata/usersData';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShareAlt } from '@fortawesome/free-solid-svg-icons';
+import { EventsContext } from '../context/EventsContext';
 import { AuthContext } from '../context/AuthContext';
 import Comments from '../components/Comments';
 import {
@@ -15,77 +14,60 @@ import {
     LinkedinIcon,
   } from 'react-share';
 
-// // Place below the RSVP button
-// <Comments eventId={event.id} />
-
 function EventDetails() {
   const { id } = useParams();
   const { user } = useContext(AuthContext);
+  const { events, toggleRSVP } = useContext(EventsContext);
   const [event, setEvent] = useState(null);
-  const [followedUsersAttending, setFollowedUsersAttending] = useState([]);
-  const [isRSVPed, setIsRSVPed] = useState(false);
 
   useEffect(() => {
-    // Fetch event data
-    const foundEvent = eventsData.find((e) => e.id === parseInt(id));
+    const foundEvent = events.find((e) => e.id === parseInt(id));
     setEvent(foundEvent);
+  }, [id, events]);
 
+  if (!event) {
+    return <div>Event not found.</div>;
+  }
 
-    if (foundEvent && user) {
-      // Get followed user IDs
-      const followedUserIds = user.followedUsers;
-      // Get RSVP user IDs
-      const eventRSVPUserIds = foundEvent.rsvps;
-      // Find mutual users
-      const mutualUserIds = followedUserIds.filter((userId) =>
-        eventRSVPUserIds.includes(userId)
-      );
-      // Get user details
-      const mutualUsers = usersData.filter((u) =>
-        mutualUserIds.includes(u.id)
-      );
-      setFollowedUsersAttending(mutualUsers);
+  const shareUrl = `${window.location.origin}/events/${event.id}`;
+  const title = event.title;
+  const isRSVPed = event.rsvps.includes(user?.id);
+
+  const handleRSVP = () => {
+    if (user) {
+      toggleRSVP(event.id, user.id);
+    } else {
+      alert('Please log in to RSVP.');
     }
-  }, [id, user]);
+  };
 
-    if (!event) {
-    return (
-        <div className="container mx-auto px-4 py-6">
-        <h2 className="text-2xl font-bold">Event Not Found</h2>
-        <p>The event you are looking for does not exist.</p>
-        </div>
-    );
-    }
-
-    const shareUrl = `${window.location.origin}/events/${event.id}`;
-    const title = event.title;
-
-    const handleRSVP = () => {
-    setIsRSVPed(!isRSVPed);
-    // Update RSVP status in backend or global state when integrated
-    };
+  // Determine followed users who have RSVP'd
+  const followedUsersAttending = event.rsvps.filter((userId) =>
+    user?.followedUsers?.includes(userId)
+  );
 
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Event Image */}
       <img src={event.image} alt={event.title} className="w-full h-96 object-cover rounded-md mb-6" />
-      {/* Event Title and Share Button */}
-      <div className="flex space-x-2 mt-4">
-        <FacebookShareButton url={shareUrl} quote={title}>
-        <FacebookIcon size={32} round />
-        </FacebookShareButton>
-        <TwitterShareButton url={shareUrl} title={title}>
-        <TwitterIcon size={32} round />
-        </TwitterShareButton>
-        <LinkedinShareButton url={shareUrl}>
-        <LinkedinIcon size={32} round />
-        </LinkedinShareButton>
-     </div>
-      {/* Event Date and Time */}
+      {/* Event Title and Share Buttons */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold">{event.title}</h2>
+        <div className="flex space-x-2">
+          <FacebookShareButton url={shareUrl} quote={title}>
+            <FacebookIcon size={32} round />
+          </FacebookShareButton>
+          <TwitterShareButton url={shareUrl} title={title}>
+            <TwitterIcon size={32} round />
+          </TwitterShareButton>
+          <LinkedinShareButton url={shareUrl}>
+            <LinkedinIcon size={32} round />
+          </LinkedinShareButton>
+        </div>
+      </div>
       <p className="text-gray-600 mt-2">
         📅 {event.date} at {event.time}
       </p>
-      {/* Event Location */}
       <p className="text-gray-600">📍 {event.location}</p>
       {/* Categories */}
       <div className="mt-4">
@@ -100,32 +82,33 @@ function EventDetails() {
       </div>
       {/* Event Description */}
       <p className="mt-6 text-gray-700">{event.description}</p>
-        {/* RSVP Button */}
-            <button
+      {/* RSVP Button */}
+      <button
         onClick={handleRSVP}
         className={`mt-4 px-4 py-2 rounded-md ${
-        isRSVPed ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
+          isRSVPed ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
         }`}
-        >
+      >
         {isRSVPed ? 'Cancel RSVP' : 'RSVP'}
-        </button>
-
-      {/* Implement RSVP functionality if needed */}
-
+      </button>
+      {/* Followed Users Attending */}
       {user && followedUsersAttending.length > 0 && (
-  <div className="mt-8">
-    <h3 className="text-xl font-bold mb-4">
-      People you follow attending this event:
-    </h3>
-    <ul>
-      {followedUsersAttending.map((u) => (
-        <li key={u.id} className="text-gray-800">
-          {u.username}
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+        <div className="mt-8">
+          <h3 className="text-xl font-bold mb-4">People you follow attending this event:</h3>
+          <ul>
+            {followedUsersAttending.map((userId) => {
+              const attendingUser = usersData.find((u) => u.id === userId);
+              return (
+                <li key={userId} className="text-gray-800">
+                  {attendingUser?.username || 'Unknown User'}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      {/* Comments Section */}
+      <Comments eventId={event.id} />
     </div>
   );
 }

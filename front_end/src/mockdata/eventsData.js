@@ -9,7 +9,7 @@ export const eventsData = [
       description: 'An evening of classical music.',
       image: './images/event1.png',
       categories: ['Music', 'Concert'],
-      rsvps: [2, 4],
+      rsvps: [],
       rsvp: false,
     },
     {
@@ -21,7 +21,7 @@ export const eventsData = [
       description: 'Showcasing modern art.',
       image: './images/event2.png',
       categories: ['Art', 'Exhibition'],
-      rsvps: [1, 3],
+      rsvps: [],
       rsvp: false,
     },
     // Add more events as needed

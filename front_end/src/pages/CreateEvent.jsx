@@ -1,7 +1,10 @@
-// src/pages/CreateEvent.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { EventsContext } from '../context/EventsContext';
+import { useNavigate } from 'react-router-dom';
 
 function CreateEvent() {
+  const { addEvent } = useContext(EventsContext);
+  const navigate = useNavigate();
   // Form state variables
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -39,6 +42,7 @@ function CreateEvent() {
         alert('Please fill in all required fields.');
         return;
     }
+
     const newEvent = {
       id: Date.now(), // Unique ID
       title,
@@ -50,7 +54,9 @@ function CreateEvent() {
       categories: selectedTags,
       rsvp: false,
     };
+
     // For now, log the event data
+    addEvent(newEvent);
     console.log('Event Created:', newEvent);
     alert('Event created successfully!');
     // Reset the form
@@ -63,6 +69,8 @@ function CreateEvent() {
     setCategories('');
     setTags([]);
     setSelectedTags([]);
+    // Redirect to the event details page    
+    navigate(`/events/${newEvent.id}`);
   };
 
   return (

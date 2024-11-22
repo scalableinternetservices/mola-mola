@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
+import { EventsContext } from '../context/EventsContext';
 import { Link } from 'react-router-dom';
 import EventList from '../components/EventList';
 import { eventsData } from '../mockdata/eventsData';
 
 function Events() {
-  const [events, setEvents] = useState(eventsData);
+     const { events } = useContext(EventsContext);
+     //TODO: Implement the search logic
 
   return (
     <div className="container mx-auto px-4 py-6">
