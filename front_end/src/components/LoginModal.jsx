@@ -20,10 +20,9 @@ function LoginModal({ onClose }) {
       const dummyEmail = 'user@example.com';
       const dummyPassword = 'password123';
       const dummyUsername = 'JohnDoe';
-
       if (email === dummyEmail && password === dummyPassword) {
         // Successful login
-        login({ email, username: dummyUsername });
+        login({ email, username: dummyUsername, followedUsers: [2, 3] });
         onClose();
       } else {
         setError('Invalid email or password');

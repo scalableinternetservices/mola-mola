@@ -1,23 +1,26 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 // import Groups from './pages/Groups';
-// import Events from './pages/Events';
+import Events from './pages/Events';
+import EventDetails from './pages/EventDetails';
+import CreateEvent from './pages/CreateEvent';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         {/* <Route path="/groups" element={<Groups />} /> */}
-        {/* <Route path="/events" element={<Events />} /> */}
+        <Route path="/events" element={<Events />} />
         {/* Add more routes as needed */}
-        {/* <Route path="/events/:id" element={<EventDetails />} /> */}
+        <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/events/create" element={<CreateEvent />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

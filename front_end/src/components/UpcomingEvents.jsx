@@ -1,28 +1,10 @@
 // src/components/UpcomingEvents.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { eventsData } from '../mockdata/eventsData';
 
 function UpcomingEvents() {
-  const events = [
-    {
-      id: 1,
-      title: 'Music Concert',
-      date: '2023-10-01',
-      time: '7:00 PM',
-      place: 'City Hall',
-      description: 'An evening of classical music.',
-      image: './images/logo512.png',
-    },
-    {
-      id: 2,
-      title: 'Art Exhibition',
-      date: '2023-10-05',
-      time: '5:00 PM',
-      place: 'Art Gallery',
-      description: 'Showcasing modern art.',
-      image: './images/logo512.png',
-    },
-  ];
+  const events = eventsData;
 
   return (
     <div>
