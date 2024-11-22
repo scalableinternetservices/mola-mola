@@ -1,5 +1,5 @@
-modulde Api
-    class RsvpController < ApplicationController
+module Api
+    class RsvpsController < ApplicationController
         
         # GET /api/rsvps
         # Return the list of all RSVPs *for the current user*, requires authentication
@@ -46,7 +46,10 @@ modulde Api
             end
 
             # If not, create the RSVP
-            rsvp = Rsvp.new(rsvp_params)
+            create_params = rsvp_params()
+            create_params[:user_id] = @user.id
+
+            rsvp = Rsvp.new(create_params)
             if rsvp.save
                 render json: rsvp, status: :created
             else
@@ -100,3 +103,4 @@ modulde Api
             params.require(:rsvp).permit(:response, :event_id)
         end
     end
+end
