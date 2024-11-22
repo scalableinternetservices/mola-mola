@@ -9,6 +9,21 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
+  # RESTful API of the service
+  namespace :api do
+    # Leave everything here for now, add specific routes after controllers are implemented
+    resources :users, only: [:index, :show, :update, :destroy]
+    resources :events
+    resources :rsvps
+    resources :invites
+    resources :comments
+    resources :follows
+    # special routes for /register, /login and /profile
+    post '/register', to: 'auth#register'
+    post '/login', to: 'auth#login'
+    get '/profile', to: 'auth#profile'
+  end
+
   # Defines the root path route ("/")
   # root "posts#index"
 end
