@@ -3,4 +3,5 @@ class Event < ApplicationRecord
 
   has_many :rsvps
   has_many :attendees, through: :rsvps, source: :user
+  has_many :comments
 end

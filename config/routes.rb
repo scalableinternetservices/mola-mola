@@ -33,6 +33,10 @@ Rails.application.routes.draw do
         end
       end
     end
+    # Add events and comments
+    resources :events do
+      resources :comments, only: [:index, :show, :create, :update, :destroy]
+    end
     # POST /api/rsvps
     resources :rsvps, only: [:create]
     # POST /api/invites
