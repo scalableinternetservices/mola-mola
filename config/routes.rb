@@ -11,13 +11,39 @@ Rails.application.routes.draw do
 
   # RESTful API of the service
   namespace :api do
-    # Leave everything here for now, add specific routes after controllers are implemented
+    # GET /api/users, {GET,PUT,DELETE} /api/users/:id
     resources :users, only: [:index, :show, :update, :destroy]
-    resources :events
-    resources :rsvps
-    resources :invites
-    resources :comments
-    resources :follows
+    resources :users do
+      # GET /api/users/:user_id/events
+      resources :events, only: [:index]
+      # GET /api/users/:user_id/rsvps
+      resources :rsvps, only: [:index]
+      # GET /api/users/:user_id/invites/{sent,received}
+      resources :invites, only: [:index] do
+        collection do
+          get :sent
+          get :received
+        end
+      end
+      # GET /api/users/:user_id/follows/{sent,received}
+      resources :follows, only: [:index] do
+        collection do
+          get :sent
+          get :received
+        end
+      end
+    end
+    # POST /api/rsvps
+    resources :rsvps, only: [:create]
+    # POST /api/invites
+    resources :invites, only: [:create]
+    # POST /api/invites/:id/{accept,decline}
+    resources :invites do
+      member do
+        post :accept
+        post :decline
+      end
+    end
     # special routes for /register, /login and /profile
     post '/register', to: 'auth#register'
     post '/login', to: 'auth#login'

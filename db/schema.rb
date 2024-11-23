@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_21_220919) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_23_020301) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -39,6 +39,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_21_220919) do
     t.bigint "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status"
     t.index ["event_id"], name: "index_follows_on_event_id"
     t.index ["followee_id"], name: "index_follows_on_followee_id"
     t.index ["follower_id"], name: "index_follows_on_follower_id"
@@ -50,6 +51,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_21_220919) do
     t.bigint "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status"
     t.index ["event_id"], name: "index_invites_on_event_id"
     t.index ["invitee_id"], name: "index_invites_on_invitee_id"
     t.index ["inviter_id"], name: "index_invites_on_inviter_id"
@@ -61,6 +63,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_21_220919) do
     t.bigint "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status"
     t.index ["event_id"], name: "index_rsvps_on_event_id"
     t.index ["user_id"], name: "index_rsvps_on_user_id"
   end
