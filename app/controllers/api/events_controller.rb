@@ -3,9 +3,15 @@ module Api
     skip_before_action :authenticate, only: [:index, :show]
     before_action :set_event, only: [:show, :update, :destroy]
     before_action :authorize_host!, only: [:update, :destroy]
-    # GET /api/events
+    before_action :set_host_user, only: [:index], if: -> { params[:host_id].present? }
+
+    # GET /api/events?host_id=:host_id
     def index
-      @events = Event.all
+      if @host_user
+        @events = Event.where(host_id: @host_user.id)
+      else
+        @events = Event.all
+      end
       render json: @events
     end
 
@@ -61,6 +67,13 @@ module Api
     # Strong parameters to whitelist event fields
     def event_params
       params.require(:event).permit(:title, :date, :host_id)
+    end
+
+    def set_host_user
+      @host_user = User.find_by(id: params[:host_id])
+      unless @host_user
+        render json: { error: "Host not found" }, status: :not_found
+      end
     end
   end
 end

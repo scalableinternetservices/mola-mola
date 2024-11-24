@@ -14,8 +14,6 @@ Rails.application.routes.draw do
     # GET /api/users, {GET,PUT,DELETE} /api/users/:id
     resources :users, only: [:index, :show, :update, :destroy]
     resources :users do
-      # GET /api/users/:user_id/events
-      resources :events, only: [:index]
       # GET /api/users/:user_id/rsvps
       resources :rsvps, only: [:index]
       # GET /api/users/:user_id/invites/{sent,received}
@@ -33,6 +31,7 @@ Rails.application.routes.draw do
         end
       end
     end
+    resources :events, only: [:show, :create, :update, :destroy]
     # Add events and comments
     resources :events do
       resources :comments, only: [:index, :show, :create, :update, :destroy]
@@ -52,6 +51,7 @@ Rails.application.routes.draw do
     post '/register', to: 'auth#register'
     post '/login', to: 'auth#login'
     get '/profile', to: 'auth#profile'
+    post '/upload', to: 'auth#get_upload_url'
   end
 
   # Defines the root path route ("/")

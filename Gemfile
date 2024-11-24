@@ -27,6 +27,8 @@ gem "bootsnap", require: false
 
 gem "jwt"
 
+gem "aws-sdk-s3"
+
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
 end
