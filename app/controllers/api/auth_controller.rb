@@ -38,6 +38,22 @@ module Api
             end
         end
 
+        # POST /api/upload
+        def get_upload_url
+            file_key = "#{@user.id}/#{SecureRandom.hex(16)}"
+
+            # Get a presigned URL for uploading a file to R2
+            presigner = Aws::S3::Presigner.new(client: R2_CLIENT)
+            presigned_url = presigner.presigned_url(
+                :put_object,
+                bucket: R2_BUCKET,
+                key: file_key,
+                expires_in: 3600,
+            )
+
+            render json: { url: presigned_url, key: file_key }, status: :ok
+        end
+
         private
 
         def user_params
