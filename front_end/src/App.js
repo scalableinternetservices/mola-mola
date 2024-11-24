@@ -8,6 +8,8 @@ import Account from './pages/Account'
 import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import CreateEvent from './pages/CreateEvent';
+import NotFound from './pages/NotFound';
+import Notifications from './pages/Notifications';
 
 function App() {
   return (
@@ -16,11 +18,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
 	<Route path="/account" element={<Account />} />
+	<Route path="/notifications" element={<Notifications />} />
         {/* <Route path="/groups" element={<Groups />} /> */}
         <Route path="/events" element={<Events />} />
         {/* Add more routes as needed */}
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/events/create" element={<CreateEvent />} />
+	<Route path="*" element={<NotFound />} /> 	
       </Routes>
     </BrowserRouter>
   );
