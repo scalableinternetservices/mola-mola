@@ -1,10 +1,20 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { EventsContext } from '../context/EventsContext';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 function CreateEvent() {
   const { addEvent } = useContext(EventsContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      alert('Please log in to create an event.');
+      navigate('/login'); // Redirect to login page or show login modal
+    }
+  }, [user, navigate]);
+  
   // Form state variables
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -35,7 +45,7 @@ function CreateEvent() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate and submit the form data
     if (!title || !description || !date || !time || !location) {
@@ -43,9 +53,34 @@ function CreateEvent() {
         return;
     }
 
-    const imageUrl = image
-    ? URL.createObjectURL(image)
-    : '/images/placeholder.png'; // Use your placeholder image path
+  let imageUrl = '/images/placeholder.png'; // Default placeholder image
+
+  if (image) {
+    try {
+      // Use your pre-signed URL directly
+      const presignedUrl = 'https://d3d21c0763b9959ef86ba901e8162914.r2.cloudflarestorage.com/mola-mola/6/a897f3d311e7738eebfa35d4e6ce13c5?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=febfb292745b023ed44af6c360d10ffc%2F20241124%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241124T083437Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=893cf527898cec259045d8a33d878c3925ab168575e94dafc367220b8cb96e26'; // Replace with your pre-signed URL
+
+      // Upload the image directly to S3
+      const uploadResponse = await fetch(presignedUrl, {
+        method: 'PUT',
+        body: image,
+        headers: {
+          'Content-Type': image.type, // Set the content type of the file
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image.');
+      }
+
+      // Construct the image URL (remove query parameters)
+      imageUrl = presignedUrl.split('?')[0];
+
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Using placeholder image.');
+    }
+  }
 
     const newEvent = {
       id: Date.now(), // Unique ID

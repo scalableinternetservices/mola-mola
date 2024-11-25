@@ -8,6 +8,7 @@ import Account from './pages/Account'
 import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import CreateEvent from './pages/CreateEvent';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
@@ -15,12 +16,12 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-	<Route path="/account" element={<Account />} />
+	      <Route path="/account" element={<Account />} />
         {/* <Route path="/groups" element={<Groups />} /> */}
         <Route path="/events" element={<Events />} />
         {/* Add more routes as needed */}
         <Route path="/events/:id" element={<EventDetails />} />
-        <Route path="/events/create" element={<CreateEvent />} />
+        <Route path="/events/create" element={<PrivateRoute><CreateEvent /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );

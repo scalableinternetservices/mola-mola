@@ -1,50 +1,64 @@
 // src/components/Comments.jsx
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { CommentsContext } from '../context/CommentsContext';
+import { AuthContext } from '../context/AuthContext';
+import { usersData } from '../mockdata/usersData'; // Assuming you have user data
 
 function Comments({ eventId }) {
-  const [comments, setComments] = useState([
-    // Mock comments data
-    { id: 1, text: 'Looking forward to this event!', author: 'Alice' },
-    { id: 2, text: 'Can’t wait!', author: 'Bob' },
-  ]);
-  const [newComment, setNewComment] = useState('');
+  const { comments, addComment, getCommentsByEventId } = useContext(CommentsContext);
+  const { user } = useContext(AuthContext);
+  const [content, setContent] = useState('');
 
-  const handleAddComment = () => {
-    if (newComment.trim() === '') return;
+  const eventComments = getCommentsByEventId(eventId);
 
-    const comment = {
-      id: comments.length + 1,
-      text: newComment,
-      author: 'Anonymous', // Replace with actual user when integrating authentication
-    };
-    setComments([...comments, comment]);
-    setNewComment('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert('Please log in to add a comment.');
+      return;
+    }
+    if (content.trim() === '') {
+      alert('Comment cannot be empty.');
+      return;
+    }
+    addComment(eventId, user.id, content.trim());
+    setContent('');
   };
 
   return (
     <div className="mt-8">
       <h3 className="text-xl font-bold mb-4">Comments</h3>
-      {comments.map((comment) => (
-        <div key={comment.id} className="mb-4">
-          <p className="text-gray-800">{comment.text}</p>
-          <p className="text-gray-600 text-sm">- {comment.author}</p>
-        </div>
-      ))}
-      <div className="mt-6">
-        <textarea
-          className="w-full border border-gray-300 rounded-md p-3"
-          rows="3"
-          placeholder="Add a comment..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-        ></textarea>
-        <button
-          onClick={handleAddComment}
-          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
-          Post Comment
-        </button>
-      </div>
+      {eventComments.length > 0 ? (
+        eventComments.map((comment) => {
+          const commenter = usersData.find((u) => u.id === comment.userId);
+          return (
+            <div key={comment.id} className="mb-4">
+              <p className="text-gray-800">
+                <strong>{commenter?.username || 'Unknown User'}</strong>: {comment.content}
+              </p>
+              <p className="text-gray-500 text-sm">{new Date(comment.createdAt).toLocaleString()}</p>
+            </div>
+          );
+        })
+      ) : (
+        <p>No comments yet. Be the first to comment!</p>
+      )}
+      {/* Comment Form */}
+      {user ? (
+        <form onSubmit={handleSubmit} className="mt-4">
+          <textarea
+            className="w-full border border-gray-300 rounded-md p-2"
+            placeholder="Add a comment..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          ></textarea>
+          <button type="submit" className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
+            Post Comment
+          </button>
+        </form>
+      ) : (
+        <p className="text-red-500 mt-4">Please log in to post a comment.</p>
+      )}
     </div>
   );
 }

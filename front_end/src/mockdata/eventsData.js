@@ -10,7 +10,7 @@ export const eventsData = [
       image: './images/event1.png',
       categories: ['Music', 'Concert'],
       rsvps: [],
-      rsvp: false,
+      declines: [],
     },
     {
       id: 2,
@@ -22,7 +22,7 @@ export const eventsData = [
       image: './images/event2.png',
       categories: ['Art', 'Exhibition'],
       rsvps: [],
-      rsvp: false,
+      declines: [],
     },
     // Add more events as needed
   ];
