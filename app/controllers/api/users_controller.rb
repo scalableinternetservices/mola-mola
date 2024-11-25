@@ -6,7 +6,11 @@ module Api
         # Return the list of all users, does not require authentication
         # Success: return the list of all users
         def index
-            users = User.all
+            unless params[:keyword].nil?
+                users = User.where("email LIKE ?", "%#{params[:keyword]}%").or(User.where("username LIKE ?", "%#{params[:keyword]}%"))
+            else 
+                users = User.all
+            end
             render json: users, status: :ok
         end
 
