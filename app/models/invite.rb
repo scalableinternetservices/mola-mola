@@ -11,4 +11,8 @@ class Invite < ApplicationRecord
   def set_default_status
     self.status ||= "pending"
   end
+
+  def as_json(option = {})
+    super(option).except('created_at', 'updated_at')
+  end
 end
