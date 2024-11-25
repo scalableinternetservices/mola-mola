@@ -31,15 +31,17 @@ Rails.application.routes.draw do
         end
       end
     end
+    get '/events/count', to: 'events#count'
     resources :events, only: [:show, :create, :update, :destroy]
     # Add events and comments
     resources :events do
       resources :comments, only: [:index, :show, :create, :update, :destroy]
     end
+    get '/rsvps/count', to: 'rsvps#count'
     # POST /api/rsvps
-    resources :rsvps, only: [:create]
+    resources :rsvps, only: [:create, :show]
     # POST /api/invites
-    resources :invites, only: [:create]
+    resources :invites, only: [:create, :show]
     # POST /api/invites/:id/{accept,decline}
     resources :invites do
       member do
@@ -47,6 +49,7 @@ Rails.application.routes.draw do
         post :decline
       end
     end
+    resources :follows, only: [:create, :destroy]
     # special routes for /register, /login and /profile
     post '/register', to: 'auth#register'
     post '/login', to: 'auth#login'

@@ -7,7 +7,7 @@ module Api
         # Success: return the list of all users
         def index
             users = User.all
-            render json: users.to_json(except: [:password_digest, :created_at, :updated_at]), status: :ok
+            render json: users, status: :ok
         end
 
         # GET /api/users/:id
@@ -18,7 +18,7 @@ module Api
         def show
             begin
                 user = User.find(params[:id])
-                render json: user.to_json(except: [:password_digest, :created_at, :updated_at]), status: :ok
+                render json: user, status: :ok
             rescue ActiveRecord::RecordNotFound
                 render json: { error: 'User not found' }, status: :not_found
             end
