@@ -2,12 +2,14 @@
 import React, { useState, useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import LoginModal from './LoginModal';
+import RegisterModal from './RegistrationModal';
 import { AuthContext } from '../context/AuthContext';
 
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const dropdownRef = useRef();
 
   // Close dropdown when clicking outside
@@ -97,8 +99,22 @@ function Navbar() {
           </div>
         </div>
       </nav>
+
+      <nav className="bg-white shadow-md">
+        {/* ... existing nav content ... */}
+      </nav>
       {/* Login Modal */}
-      {isLoginModalOpen && <LoginModal onClose={() => setIsLoginModalOpen(false)} />}
+      {isLoginModalOpen && (
+        <LoginModal
+          onClose={() => setIsLoginModalOpen(false)}
+          onShowRegister={() => {
+            setIsLoginModalOpen(false); // Close the login modal
+            setShowRegisterModal(true); // Open the register modal
+          }}
+        />
+      )}
+      {/* Register Modal */}
+      {showRegisterModal && <RegisterModal onClose={() => setShowRegisterModal(false)} />}
     </>
   );
 }

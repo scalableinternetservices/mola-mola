@@ -10,6 +10,8 @@ import EventDetails from './pages/EventDetails';
 import CreateEvent from './pages/CreateEvent';
 import NotFound from './pages/NotFound';
 import Notifications from './pages/Notifications';
+import PrivateRoute from './components/PrivateRoute';
+
 
 function App() {
   return (
@@ -17,14 +19,17 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-	<Route path="/account" element={<Account />} />
-	<Route path="/notifications" element={<Notifications />} />
+
+      <Route path="/account" element={<Account />} />
+      <Route path="/notifications" element={<Notifications />} />
+
         {/* <Route path="/groups" element={<Groups />} /> */}
         <Route path="/events" element={<Events />} />
         {/* Add more routes as needed */}
         <Route path="/events/:id" element={<EventDetails />} />
-        <Route path="/events/create" element={<CreateEvent />} />
-	<Route path="*" element={<NotFound />} /> 	
+        <Route path="/events/create" element={<PrivateRoute><CreateEvent /></PrivateRoute>} />
+        {/* Everything else goes here */}
+        <Route path="*" element={<NotFound />} /> 
       </Routes>
     </BrowserRouter>
   );
