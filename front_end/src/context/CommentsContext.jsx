@@ -1,10 +1,11 @@
 // src/context/CommentsContext.js
 import React, { createContext, useState } from 'react';
+import { mockCommentsData } from '../mockdata/commentsData';
 
 export const CommentsContext = createContext();
 
 export const CommentsProvider = ({ children }) => {
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState(mockCommentsData);
 
   // Function to add a new comment
   const addComment = (eventId, userId, content) => {
