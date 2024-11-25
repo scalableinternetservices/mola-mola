@@ -1,3 +1,0 @@
-module RsvpHelper
-end
-
