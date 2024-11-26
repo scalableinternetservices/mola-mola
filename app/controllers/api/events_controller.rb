@@ -1,3 +1,5 @@
+require 'date'
+
 module Api
   class EventsController < ApplicationController
     skip_before_action :authenticate, only: [:index, :show, :count]
@@ -18,21 +20,27 @@ module Api
     # GET /api/events/count
     def count
       query_params = params.permit(:host_id, :since, :until)
-      unless query_params[:until].present?
-        query_params[:until] = Time.now
-      end
-      unless query_params[:since].present?
-        query_params[:since] = Time.now - 1.month
+
+      final_hash = Hash.new
+      end_date = Date.parse(query_params[:until]) rescue Date.today
+      start_date = Date.parse(query_params[:since]) rescue Date.today - 30.days
+
+      (start_date..end_date).each do |date|
+        beginning_time = date.beginning_of_day
+        end_time = date.end_of_day
+
+        if query_params[:host_id].present?
+          event_count_per_date = Event.where(host_id: query_params[:host_id], date: beginning_time..end_time).count
+        else
+          event_count_per_date = Event.where(date: beginning_time..end_time).count
+        end
+
+        if event_count_per_date > 0
+          final_hash[date] = event_count_per_date
+        end
       end
 
-      @number = 0
-      if query_params[:host_id].present?
-        @number = Event.where(host_id: query_params[:host_id], date: query_params[:since]..query_params[:until]).count
-      else
-        @number = Event.where(date: query_params[:since]..query_params[:until]).count
-      end
-
-      render json: { count: @number }
+      render json: final_hash
     end
 
     # GET /api/events/:id

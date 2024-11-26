@@ -38,26 +38,25 @@ module Api
     # GET /api/rsvps/count
     # Return the number of RSVPs in the given time range, requires authentication 
     def count
-      query_params = params.permit(:since, :until)
-      query_params[:user_id] = @user.id
-      unless query_params[:until].present?
-        query_params[:until] = Time.now
-      end
-      unless query_params[:since].present?
-        query_params[:since] = Time.now - 1.month
+      query_params = params.permit(:since, :until, :user_id)
+      
+      final_hash = Hash.new
+      end_date = Date.parse(query_params[:until]) rescue Date.today
+      start_date = Date.parse(query_params[:since]) rescue Date.today - 30.days
+      user_id = query_params[:user_id] || @user.id
+
+      (start_date..end_date).each do |date|
+        beginning_time = date.beginning_of_day
+        end_time = date.end_of_day
+
+        rsvp_count_per_date = Rsvp.where(
+          user_id: user_id, created_at: beginning_time..end_time).count
+        if rsvp_count_per_date > 0
+          final_hash[date] = rsvp_count_per_date
+        end
       end
 
-      @number = 0
-      if query_params[:user_id].present?
-        @number = Rsvp.where(
-          user_id: query_params[:user_id],
-          created_at: query_params[:since]..query_params[:until]
-        ).count
-      else
-        @number = Rsvp.where(created_at: query_params[:since]..query_params[:until]).count
-      end
-
-      render json: { count: @number }
+      render json: final_hash
     end
 
     # POST /api/rsvps
