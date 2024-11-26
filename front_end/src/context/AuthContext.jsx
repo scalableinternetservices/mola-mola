@@ -1,35 +1,55 @@
-// src/context/AuthContext.js
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+import { registerUser, loginUser } from '../api';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  // Mock registration function
-  const register = ({ email, username, password }) => {
-    const newUser = {
-      id: Date.now(),
-      email,
-      username,
-      followedUsers: [],
+  const [auth, setAuth] = useState(() => {
+    // Initialize state with data from localStorage if available
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    return {
+      token: token || null,
+      user: user ? JSON.parse(user) : null,
     };
-    setUser(newUser);
+  });
+
+  // Persist to localStorage whenever `auth` state changes
+  useEffect(() => {
+    if (auth.token) {
+      localStorage.setItem('token', auth.token);
+      localStorage.setItem('user', JSON.stringify(auth.user));
+    } else {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+  }, [auth]);
+
+  const register = async (userData) => {
+    const response = await registerUser(userData);
+    setAuth({
+      token: response.token,
+      user: response.user,
+    });
   };
 
-  // Mock login function (for completeness)
-  const login = (email, password) => {
-    // Implement login logic here
-    setUser({ email, username: "Test", followedUsers: [2, 3], id: 5 }); // Mock user
+  const login = async (credentials) => {
+    const response = await loginUser(credentials);
+    setAuth({
+      token: response.token,
+      user: response.user,
+    });
   };
 
-  // Mock logout function
   const logout = () => {
-    setUser(null);
+    setAuth({
+      token: null,
+      user: null,
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, register, login, logout }}>
+    <AuthContext.Provider value={{ auth, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
