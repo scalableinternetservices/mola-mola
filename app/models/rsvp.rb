@@ -8,4 +8,8 @@ class Rsvp < ApplicationRecord
 
   scope :accepted, -> { where(status: 'accepted') }
   scope :declined, -> { where(status: 'declined') }
+
+  def as_json(option = {})
+    super(option).except('created_at', 'updated_at')
+  end
 end
