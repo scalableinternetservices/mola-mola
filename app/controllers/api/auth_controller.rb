@@ -16,7 +16,6 @@ module Api
           }
         }, status: :created
       else
-        # TODO: Return more detailed error messages and status codes
         render json: { error: @user.errors.full_messages }, status: :bad_request
       end
     end
@@ -38,7 +37,6 @@ module Api
           }
         }, status: :ok
       else
-        # TODO: Return more detailed error messages and status codes
         render json: { error: 'Invalid email or password' }, status: :unauthorized
       end
     end

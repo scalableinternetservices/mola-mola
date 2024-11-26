@@ -1,6 +1,7 @@
 module Api
     class UsersController < ApplicationController
         skip_before_action :authenticate, only: [:index, :show]
+        before_action :authenticate_user_themselves, only: [:update, :destroy]
 
         # GET /api/users
         # Return the list of all users, does not require authentication
@@ -18,7 +19,7 @@ module Api
         # Return the user with the given ID, does not require authentication
         # Success: return the user
         #   User not found: return 404 Not Found
-        #   Other exceptions: return 500 Internal Server Error TODO: what could be other exceptions?
+        #   Other exceptions: return 500 Internal Server Error
         def show
             begin
                 user = User.find(params[:id])
@@ -26,7 +27,6 @@ module Api
             rescue ActiveRecord::RecordNotFound
                 render json: { error: 'User not found' }, status: :not_found
             end
-            # TODO: what could be other exceptions?
         end
 
         # PUT /api/users/:id
@@ -35,15 +35,11 @@ module Api
         #   Updating someone else: return 401 Unauthorized
         #   Update failed: return 400 Bad Request
         def update
-            if String(@user.id) == params[:id]
-                begin
-                    @user.update(user_params)
-                    render json: @user, status: :ok # Successfully updated, return updated user status
-                rescue # TODO: fill in proper exception type
-                    render json: { error: 'Update failed' }, status: :bad_request # TODO: properly handle validation errors
-                end            
-            else
-                render json: { error: 'Unauthorized' }, status: :unauthorized
+            begin
+                @user.update(user_params)
+                render json: @user, status: :ok # Successfully updated, return updated user status
+            rescue
+                render json: { error: 'Update failed' }, status: :bad_request
             end
         end
 
@@ -53,18 +49,20 @@ module Api
         #   Deleting someone else: return 401 Unauthorized
         #   Delete failed: return 400 Bad Request
         def destroy
-            if String(@user.id) == params[:id]
-                @user.destroy # TODO: will destroy fail? handle it if needed?
-                render json: { message: 'User deleted' }, status: :ok
-            else
-                render json: { error: 'Unauthorized: deleting someone else' }, status: :unauthorized
-            end
+            @user.destroy
+            render json: { message: 'User deleted' }, status: :ok
         end
 
         private
 
         def user_params
             params.require(:user).permit(:email, :password, :password_confirmation)
+        end
+
+        def authenticate_user_themselves
+            if String(@user.id) != params[:id]
+                render json: { error: 'Unauthorized: modifying someone else' }, status: :unauthorized
+            end
         end
     end
 end    

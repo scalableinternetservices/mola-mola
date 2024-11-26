@@ -100,7 +100,7 @@ module Api
         render json: { error: 'User not found' }, status: :not_found
       end
       # And that it's the authenticated user
-      unless @active_user.id == @user.id
+      unless @active_user.id == @user.id || @active_user.privacy == 'public'
         render json: { error: 'Unauthorized to view these follows' }, status: :unauthorized
       end
     end
