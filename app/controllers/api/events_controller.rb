@@ -32,7 +32,7 @@ module Api
 
     # GET /api/events/count
     def count
-      query_params = params.permit(:host_id, :since, :until)
+      query_params = params.permit(:since, :until)
 
       final_hash = Hash.new
       end_date = Date.parse(query_params[:until]) rescue Date.today
@@ -42,8 +42,8 @@ module Api
         beginning_time = date.beginning_of_day
         end_time = date.end_of_day
 
-        if query_params[:host_id].present?
-          event_count_per_date = Event.where(host_id: query_params[:host_id], date: beginning_time..end_time).count
+        if @host_user.present?
+          event_count_per_date = Event.where(host_id: @host_user.id, date: beginning_time..end_time).count
         else
           event_count_per_date = Event.where(date: beginning_time..end_time).count
         end

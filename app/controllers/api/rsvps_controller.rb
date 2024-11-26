@@ -53,9 +53,11 @@ module Api
     def show
       begin
         rsvp = Rsvp.find(params[:id])
-        if rsvp.user_id == @user.id
+        active_user = User.find(rsvp.user_id)
+
+        if rsvp.user_id == @user.id || active_user.privacy == 'public'
           render json: rsvp, status: :ok
-        else # TODO: look at the other user's privacy settings to see if the current user can see this RSVP
+        else 
           render json: { error: 'Looking at someone else\'s RSVP' }, status: :unauthorized
         end
       rescue ActiveRecord::RecordNotFound
@@ -222,7 +224,7 @@ module Api
         render json: { error: 'User not found' }, status: :not_found
       end
       # And that it's the authenticated user
-      unless @active_user.id == @user.id
+      unless @active_user.id == @user.id || @active_user.privacy == 'public'
         render json: { error: 'Unauthorized to view these RSVPs' }, status: :unauthorized
       end
     end
