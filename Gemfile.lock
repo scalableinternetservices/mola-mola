@@ -163,6 +163,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.1.8)
+    rack-cors (2.0.2)
+      rack (>= 2.0.0)
     rack-session (2.0.0)
       rack (>= 3.0.0)
     rack-test (2.1.0)
@@ -234,6 +236,7 @@ GEM
 PLATFORMS
   aarch64-linux
   arm64-darwin-23
+  arm64-darwin-24
   x86_64-linux
 
 DEPENDENCIES
@@ -245,6 +248,7 @@ DEPENDENCIES
   jwt
   pg (~> 1.5.9)
   puma (>= 5.0)
+  rack-cors
   rails (~> 7.1.5)
   sprockets-rails
   stimulus-rails

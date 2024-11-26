@@ -29,6 +29,8 @@ gem "jwt"
 
 gem "aws-sdk-s3"
 
+gem 'rack-cors', require: 'rack/cors'
+
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
 end
