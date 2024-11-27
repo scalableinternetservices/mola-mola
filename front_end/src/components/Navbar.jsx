@@ -2,12 +2,14 @@
 import React, { useState, useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import LoginModal from './LoginModal';
+import RegisterModal from './RegistrationModal';
 import { AuthContext } from '../context/AuthContext';
 
 function Navbar() {
-  const { user, logout } = useContext(AuthContext);
+  const { auth, logout } = useContext(AuthContext); // Use `auth` from context
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const dropdownRef = useRef();
 
   // Close dropdown when clicking outside
@@ -42,7 +44,7 @@ function Navbar() {
               Events
             </Link>
             {/* Authentication Buttons */}
-            {!user ? (
+            {!auth.user ? ( // Check `auth.user`
               <button
                 onClick={() => setIsLoginModalOpen(true)}
                 className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -55,7 +57,7 @@ function Navbar() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center bg-gray-200 px-4 py-2 rounded-md"
                 >
-                  {user.username}
+                  {auth.user.username}{/* Display username */}
                   <svg
                     className="w-4 h-4 ml-1"
                     fill="none"
@@ -98,7 +100,17 @@ function Navbar() {
         </div>
       </nav>
       {/* Login Modal */}
-      {isLoginModalOpen && <LoginModal onClose={() => setIsLoginModalOpen(false)} />}
+      {isLoginModalOpen && (
+        <LoginModal
+          onClose={() => setIsLoginModalOpen(false)}
+          onShowRegister={() => {
+            setIsLoginModalOpen(false); // Close the login modal
+            setShowRegisterModal(true); // Open the register modal
+          }}
+        />
+      )}
+      {/* Register Modal */}
+      {showRegisterModal && <RegisterModal onClose={() => setShowRegisterModal(false)} />}
     </>
   );
 }

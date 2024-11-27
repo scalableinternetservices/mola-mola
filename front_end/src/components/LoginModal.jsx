@@ -1,34 +1,29 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
-function LoginModal({ onClose }) {
-  const { login } = useContext(AuthContext);
+function LoginModal({ onClose, onShowRegister }) {
+  const { login } = useContext(AuthContext); // Login function from AuthContext
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // Error message state
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
-    // Simulate authentication
-    setTimeout(() => {
-      const dummyEmail = 'a@b.c';
-      const dummyPassword = 'test';
-      const dummyUsername = 'JohnDoe';
-      if (email === dummyEmail && password === dummyPassword) {
-        // Successful login
-        login({ email, username: dummyUsername, followedUsers: [2, 3], id: 5 });
-        onClose();
-      } else {
-        setError('Invalid email or password');
-      }
+    try {
+      // Use login from AuthContext
+      await login({ email, password });
+      alert('Login successful!');
+      onClose();
+    } catch (err) {
+      // Capture and display errors
+      setError(err.message || 'Invalid email or password');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -79,6 +74,13 @@ function LoginModal({ onClose }) {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        {/* Register Link */}
+        <p className="mt-4 text-center">
+          Not a user?{' '}
+          <button onClick={onShowRegister} className="text-blue-500 underline">
+            Register here
+          </button>
+        </p>
       </div>
     </div>
   );
