@@ -10,7 +10,7 @@ class User < ApplicationRecord
 
     has_many :follows, foreign_key: "follower_id"
     has_many :followed_users, through: :follows, source: :followee
-    has_many :followers, through: :follows, source: :followers
+    has_many :followers, through: :follows, source: :follower
 
     def as_json(option = {})
       super(option).except('password_digest', 'created_at', 'updated_at')

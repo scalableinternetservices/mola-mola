@@ -5,15 +5,19 @@ module Api
     # If :status present in params (which means requesting with ?status=accepted/declined), validate the status
     before_action :validate_status, if: -> { params[:status].present? }
         
-    # GET /api/users/:user_id/rsvps
+    # GET /api/rsvps
     # Return the list of all RSVPs by the user with the given ID, requires authentication
     # Success: return the list of all RSVPs
     def index
-      unless params[:status].nil?
-        @rsvps = Rsvp.where(user_id: @active_user.id, response: params[:status])
-      else
-        @rsvps = Rsvp.where(user_id: @active_user.id)
-      end
+      query_params = params.permit(:status, :event_id)
+      query_params[:user_id] = @active_user.id
+
+      @rsvps = Rsvp.where(query_params)
+      # unless params[:status].nil?
+      #   @rsvps = Rsvp.where(user_id: @active_user.id, response: params[:status])
+      # else
+      #   @rsvps = Rsvp.where(user_id: @active_user.id)
+      # end
       render json: @rsvps, status: :ok
     end
 
@@ -66,7 +70,7 @@ module Api
     #   Event does not exist: return 404 Not Found
     #   Saving failed: return 400 Bad Request
     def create
-      create_params = params.require(:rsvp).permit(:status, :event_id)
+      create_params = params.permit(:status, :event_id)
       create_params[:user_id] = @user.id
 
       # Check if the event exists 
@@ -99,7 +103,7 @@ module Api
     #   RSVP not found: return 404 Not Found
     #   Update failed: return 400 Bad Request
     def update
-      update_params = params.require(:rsvp).permit(:status)
+      update_params = params.permit(:status)
       begin
         rsvp = Rsvp.find(params[:id])
         if rsvp.user_id == @user.id
@@ -137,10 +141,6 @@ module Api
     end
 
     private
-
-    def rsvp_params
-      params.require(:rsvp).permit(:status, :event_id)
-    end
 
     def set_active_user
       @active_user = User.find_by(id: params[:user_id])
