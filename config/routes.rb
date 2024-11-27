@@ -37,7 +37,12 @@ Rails.application.routes.draw do
     end
     get '/rsvps/count', to: 'rsvps#count'
     # {GET,POST,PUT,DELETE} /api/rsvps
-    resources :rsvps, only: [:create, :index, :update, :destroy]
+    resources :rsvps, only: [:create, :index, :update, :destroy] do
+      collection do
+        put '/', action: :update
+        delete '/', action: :destroy
+      end
+    end
     # POST /api/invites
     resources :invites, only: [:create, :show]
     # POST /api/invites/:id/{accept,decline}
