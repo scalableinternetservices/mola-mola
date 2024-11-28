@@ -13,10 +13,13 @@ function formatDate(timestamp) {
   return `${year}-${month}-${day}`;
 }
 
+
 function Account() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [generateHeatmap, setGenerateHeatmap] = useState(false);
+
+  
   const [heatmapData, setHeatmapData] = useState([]); // State to store the heatmap data
 
   // Fetch the event data from the API and set it to state
@@ -40,7 +43,7 @@ function Account() {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  }, []);
+
 
   // Handler to update start and end dates from RangePicker
   const handleDateChange = (dates) => {
@@ -56,6 +59,7 @@ function Account() {
   // Handle button click to generate heatmap
   const handleGenerateHeatmap = () => {
     if (startDate && endDate) {
+
       fetchData(startDate, endDate); // Fetch the data when the button is clicked
       setGenerateHeatmap(true);
     } else {
@@ -68,7 +72,9 @@ function Account() {
     title: {
       top: 30,
       left: 'center',
+
       text: 'Daily Event Count'
+
     },
     tooltip: {},
     visualMap: {

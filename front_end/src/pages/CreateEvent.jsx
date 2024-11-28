@@ -5,13 +5,14 @@ import { AuthContext } from '../context/AuthContext';
 
 function CreateEvent() {
   const { addEvent } = useContext(EventsContext);
-  const { user } = useContext(AuthContext);
+  const { auth } = useContext(AuthContext);
+  const { user } = auth;
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
       alert('Please log in to create an event.');
-      navigate('/login'); // Redirect to login page or show login modal
+      navigate('/login');
     }
   }, [user, navigate]);
   

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://chuyan.eba-xfy2gqnx.us-west-2.elasticbeanstalk.com/api';
 
 // Helper function for making API requests
 const apiRequest = async (url, method, body = null, token = null) => {
@@ -45,3 +45,28 @@ export const loginUser = async (credentials) => {
 export const getTotalEvents = async (url) => {
   return apiRequest(url, 'GET');
 };
+
+// Fetch all events
+export const fetchAllEvents = async () => {
+    return apiRequest('/events', 'GET');
+  };
+  
+// Fetch a single event by ID
+export const fetchEventById = async (id) => {
+return apiRequest(`/events/${id}`, 'GET');
+};
+
+// export const rsvp
+
+export const rsvpEvent = async (eventId, token) => {
+//   return apiRequest(`/events/${eventId}/rsvp`, 'POST', null, token);
+return;
+}
+
+// export const decline
+export const declineEvent = async (eventId, token) => {
+//   return apiRequest(`/events/${eventId}/decline`, 'POST', null, token);
+return;
+}
+
+
