@@ -2,7 +2,7 @@ require 'date'
 
 module Api
   class EventsController < ApplicationController
-    skip_before_action :authenticate, only: [:index, :show, :count]
+    # skip_before_action :authenticate, only: [:index, :show, :count]
     before_action :set_event, only: [:show, :update, :destroy]
     before_action :authorize_host!, only: [:update, :destroy]
     before_action :set_host_user, only: [:index, :count], if: -> { params[:host_id].present? }
@@ -14,7 +14,19 @@ module Api
       else
         @events = Event.all
       end
-      render json: @events.as_json
+
+      if @user.present?
+        events_with_extra_field = @events.map do |event|
+          event
+            .as_json
+            .merge(rsvp_status: event.rsvp_status(@user))
+            .merge(followed_users: event.followed_users(@user))
+        end
+      else
+        events_with_extra_field = @events
+      end
+
+      render json: events_with_extra_field
     end
 
     # GET /api/events/count
@@ -45,8 +57,15 @@ module Api
 
     # GET /api/events/:id
     def show
-      @event = Event.find(params[:id])      
-      json_event = @event.as_json(methods: [:accepted_users, :declined_users])
+      @event = Event.find(params[:id])
+      if @user.present?
+        json_event = @event.as_json.merge(
+          rsvp_status: @event.rsvp_status(@user),
+          followed_users: @event.followed_users(@user)
+        )
+      else
+        json_event = @event.as_json
+      end
       render json: json_event
     end
 
