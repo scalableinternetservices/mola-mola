@@ -41,6 +41,11 @@ export const loginUser = async (credentials) => {
   return apiRequest('/login', 'POST', { user: credentials });
 };
 
+// Heatmap API
+export const getTotalEvents = async (url) => {
+  return apiRequest(url, 'GET');
+};
+
 // Fetch all events
 export const fetchAllEvents = async () => {
     return apiRequest('/events', 'GET');
@@ -64,4 +69,4 @@ export const declineEvent = async (eventId, token) => {
 return;
 }
 
-  
+
