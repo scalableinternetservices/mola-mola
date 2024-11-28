@@ -40,3 +40,8 @@ export const registerUser = async (userData) => {
 export const loginUser = async (credentials) => {
   return apiRequest('/login', 'POST', { user: credentials });
 };
+
+// Heatmap API
+export const getTotalEvents = async (url) => {
+  return apiRequest(url, 'GET');
+};
