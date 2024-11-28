@@ -14,8 +14,6 @@ Rails.application.routes.draw do
     # GET /api/users, {GET,PUT,DELETE} /api/users/:id
     resources :users, only: [:index, :show, :update, :destroy]
     resources :users do
-      # GET /api/users/:user_id/rsvps
-      resources :rsvps, only: [:index]
       # GET /api/users/:user_id/invites/{sent,received}
       resources :invites, only: [:index] do
         collection do
@@ -38,8 +36,13 @@ Rails.application.routes.draw do
       resources :comments, only: [:index, :show, :create, :update, :destroy]
     end
     get '/rsvps/count', to: 'rsvps#count'
-    # POST /api/rsvps
-    resources :rsvps, only: [:create, :show, :update]
+    # {GET,POST,PUT,DELETE} /api/rsvps
+    resources :rsvps, only: [:create, :index, :update, :destroy] do
+      collection do
+        put '/', action: :update
+        delete '/', action: :destroy
+      end
+    end
     # POST /api/invites
     resources :invites, only: [:create, :show]
     # POST /api/invites/:id/{accept,decline}

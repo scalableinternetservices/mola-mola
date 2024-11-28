@@ -72,6 +72,7 @@ module Api
         render json: { error: 'Invalid response' }, status: :bad_request
       end
     end
+    # to do: users cann't follow oneself 
 
     # DELETE /api/follows/:id
     # Delete the follow with the given ID, requires authentication
