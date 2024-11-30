@@ -6,14 +6,14 @@ import { usersData } from '../mockdata/usersData'; // Assuming you have user dat
 
 function Comments({ eventId }) {
   const { comments, addComment, getCommentsByEventId } = useContext(CommentsContext);
-  const { user } = useContext(AuthContext);
+  const { auth } = useContext(AuthContext);
   const [content, setContent] = useState('');
 
   const eventComments = getCommentsByEventId(eventId);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!user) {
+    if (!auth.user) {
       alert('Please log in to add a comment.');
       return;
     }
@@ -21,7 +21,7 @@ function Comments({ eventId }) {
       alert('Comment cannot be empty.');
       return;
     }
-    addComment(eventId, user.id, content.trim());
+    addComment(eventId, auth.user?.id, content.trim());
     setContent('');
   };
 
@@ -44,7 +44,7 @@ function Comments({ eventId }) {
         <p>No comments yet. Be the first to comment!</p>
       )}
       {/* Comment Form */}
-      {user ? (
+      {auth.user ? (
         <form onSubmit={handleSubmit} className="mt-4">
           <textarea
             className="w-full border border-gray-300 rounded-md p-2"

@@ -76,11 +76,15 @@ function EventDetails() {
     }
   };
 
+  const imageUrl = event.image
+  ? `https://mola.zcy.moe/${event.image}`
+  : '/images/default-event-image.jpg'; // Use your default image path
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Event Image */}
       <img
-        src={event.image}
+        src={imageUrl}
         alt={event.title}
         className="w-full h-96 object-cover rounded-md mb-6"
       />

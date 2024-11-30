@@ -1,32 +1,40 @@
+// src/pages/CreateEvent.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import { EventsContext } from '../context/EventsContext';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { getPresignedUrl, createEvent } from '../api'; // Import API functions
 
 function CreateEvent() {
   const { addEvent } = useContext(EventsContext);
   const { auth } = useContext(AuthContext);
-  const { user } = auth;
+  const { user, token } = auth || {};
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !token) {
       alert('Please log in to create an event.');
       navigate('/login');
     }
-  }, [user, navigate]);
-  
+  }, [user, token, navigate]);
+
   // Form state variables
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [location, setLocation] = useState('');
-  const [image, setImage] = useState(null);
   const [categories, setCategories] = useState('');
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Image upload state variables
+  const [imageFile, setImageFile] = useState(null);
+  const [imageKey, setImageKey] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const handleGenerateTags = () => {
     setIsGeneratingTags(true);
@@ -46,27 +54,37 @@ function CreateEvent() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Validate and submit the form data
-    if (!title || !description || !date || !time || !location) {
-        alert('Please fill in all required fields.');
-        return;
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+    if (file) {
+      setImagePreviewUrl(URL.createObjectURL(file));
+    } else {
+      setImagePreviewUrl(null);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!imageFile) {
+      alert('Please select an image to upload.');
+      return;
     }
 
-  let imageUrl = '/images/placeholder.png'; // Default placeholder image
+    setIsUploadingImage(true);
 
-  if (image) {
     try {
-      // Use your pre-signed URL directly
-      const presignedUrl = 'https://d3d21c0763b9959ef86ba901e8162914.r2.cloudflarestorage.com/mola-mola/6/a897f3d311e7738eebfa35d4e6ce13c5?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=febfb292745b023ed44af6c360d10ffc%2F20241124%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241124T083437Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=893cf527898cec259045d8a33d878c3925ab168575e94dafc367220b8cb96e26'; // Replace with your pre-signed URL
+      // Step 1: Get presigned URL and key
+      const uploadData = await getPresignedUrl(token);
 
-      // Upload the image directly to S3
+      const presignedUrl = uploadData.url;
+      const uploadedImageKey = uploadData.key;
+
+      // Step 2: Upload the image using the presigned URL
       const uploadResponse = await fetch(presignedUrl, {
         method: 'PUT',
-        body: image,
+        body: imageFile,
         headers: {
-          'Content-Type': image.type, // Set the content type of the file
+          'Content-Type': imageFile.type, // Set the content type of the file
         },
       });
 
@@ -74,44 +92,81 @@ function CreateEvent() {
         throw new Error('Failed to upload image.');
       }
 
-      // Construct the image URL (remove query parameters)
-      imageUrl = presignedUrl.split('?')[0];
+      // Image uploaded successfully
+      setImageKey(uploadedImageKey);
+      alert('Image uploaded successfully.');
 
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Using placeholder image.');
+      alert('Failed to upload image. Please try again.');
+      // Do not set imageKey; the user can try uploading again
+    } finally {
+      setIsUploadingImage(false);
     }
-  }
+  };
 
-    const newEvent = {
-      id: Date.now(), // Unique ID
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Validate required fields
+    if (!title || !description || !date || !time || !location) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Combine date and time into an ISO string
+    const eventDateTime = new Date(`${date}T${time}`);
+    if (isNaN(eventDateTime)) {
+      alert('Invalid date or time.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Prepare event data
+    const eventData = {
       title,
       description,
-      date,
-      time,
+      date: eventDateTime.toISOString(),
       location,
-      image: imageUrl,
       categories: selectedTags,
-      rsvp: false,
-      rsvps: [],
+      // Include image only if imageKey is available
+      ...(imageKey && { image: imageKey }),
     };
 
-    // For now, log the event data
-    addEvent(newEvent);
-    console.log('Event Created:', newEvent);
-    alert('Event created successfully!');
-    // Reset the form
-    setTitle('');
-    setDescription('');
-    setDate('');
-    setTime('');
-    setLocation('');
-    setImage(null);
-    setCategories('');
-    setTags([]);
-    setSelectedTags([]);
-    // Redirect to the event details page    
-    navigate(`/events/${newEvent.id}`);
+    try {
+      // Create the event via API
+      const createdEvent = await createEvent(eventData, token);
+
+      // Add default values for missing fields
+      createdEvent.rsvp_status = 'pending';
+      createdEvent.followed_users = [];
+
+      // Add the new event to the EventsContext
+      addEvent(createdEvent);
+
+      // Reset the form
+      setTitle('');
+      setDescription('');
+      setDate('');
+      setTime('');
+      setLocation('');
+      setCategories('');
+      setTags([]);
+      setSelectedTags([]);
+      setImageFile(null);
+      setImageKey(null);
+      setImagePreviewUrl(null);
+
+      alert('Event created successfully!');
+      // Redirect to the event details page
+      navigate(`/events/${createdEvent.id}`);
+    } catch (error) {
+      console.error('Error creating event:', error);
+      alert('Failed to create event. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -208,29 +263,41 @@ function CreateEvent() {
             placeholder="Enter event location"
           />
         </div>
-        {/* Event Image */}
+        {/* Event Image Upload */}
         <div className="mb-6">
           <label className="block text-gray-700">Event Image:</label>
           <input
             type="file"
             accept="image/*"
             className="mt-1 block w-full"
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={handleImageChange}
           />
-          {image && (
+          {imagePreviewUrl && (
             <img
-              src={URL.createObjectURL(image)}
+              src={imagePreviewUrl}
               alt="Event Preview"
               className="mt-4 w-full h-64 object-cover rounded-md"
             />
+          )}
+          <button
+            type="button"
+            onClick={handleImageUpload}
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md"
+            disabled={isUploadingImage || !imageFile}
+          >
+            {isUploadingImage ? 'Uploading Image...' : 'Upload Image'}
+          </button>
+          {imageKey && (
+            <p className="text-green-600 mt-2">Image uploaded successfully.</p>
           )}
         </div>
         {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-green-500 text-white py-3 rounded-md hover:bg-green-600 transition duration-200"
+          disabled={isSubmitting}
         >
-          Create Event
+          {isSubmitting ? 'Creating Event...' : 'Create Event'}
         </button>
       </form>
     </div>

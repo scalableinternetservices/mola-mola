@@ -41,6 +41,14 @@ export const loginUser = async (credentials) => {
   return apiRequest('/login', 'POST', { user: credentials });
 };
 
+// Heatmap API
+export const getTotalEvents = async (url, token) => {
+    if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+      }
+    return apiRequest(url, 'GET',null, token);
+};
+
 // Fetch all events (token required)
 export const fetchAllEvents = async (token) => {
     if (!token) {
@@ -59,15 +67,40 @@ export const fetchEventById = async (id, token) => {
 
 // Create RSVP
 export const createRSVP = async (rsvpData, token) => {
+    if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+      }
     return apiRequest('/rsvps', 'POST', rsvpData, token);
-  };
+};
   
 // Modify RSVP
 export const modifyRSVP = async (rsvpData, token) => {
-return apiRequest('/rsvps', 'PUT', rsvpData, token);
+    if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+      }
+    return apiRequest('/rsvps', 'PUT', rsvpData, token);
 };
 
 // Delete RSVP
 export const deleteRSVP = async (rsvpData, token) => {
-return apiRequest('/rsvps', 'DELETE', rsvpData, token);
+    if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+      }
+    return apiRequest('/rsvps', 'DELETE', rsvpData, token);
+};
+
+// Get Presigned URL for Image Upload
+export const getPresignedUrl = async (token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to get a presigned URL.');
+    }
+    return apiRequest('/upload', 'POST', null, token);
+  };
+  
+// Create Event API
+export const createEvent = async (eventData, token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to create an event.');
+    }
+    return apiRequest('/events/', 'POST', { event: eventData }, token);
 };

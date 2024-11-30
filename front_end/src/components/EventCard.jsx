@@ -59,11 +59,15 @@ function EventCard({ event }) {
     }
   };
 
+  const imageUrl = event.image
+  ? `https://mola.zcy.moe/${event.image}`
+  : '/images/default-event-image.jpg'; // Use your default image path
+
   return (
     <div className="mb-6 bg-white shadow-md rounded-md overflow-hidden">
       <Link to={`/events/${event.id}`}>
         <img
-          src={event.image}
+          src={imageUrl}
           alt={event.title}
           className="w-full h-64 object-cover"
         />
