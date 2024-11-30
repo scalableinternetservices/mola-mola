@@ -10,6 +10,7 @@ import CreateEvent from './pages/CreateEvent';
 import NotFound from './pages/NotFound';
 import Notifications from './pages/Notifications';
 import PrivateRoute from './components/PrivateRoute';
+import EditEvent from './pages/EditEvent';
 
 
 function App() {
@@ -17,9 +18,7 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-
-
+      <Route path="/" element={<Home />} />
       <Route path="/account" element={<Account />} />
       <Route path="/notifications" element={<Notifications />} />
 
@@ -28,6 +27,8 @@ function App() {
         {/* Add more routes as needed */}
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/events/create" element={<PrivateRoute><CreateEvent /></PrivateRoute>} />
+        <Route path="/events/:id/edit" element={<EditEvent />} />
+
         {/* Everything else goes here */}
         <Route path="*" element={<NotFound />} /> 
       </Routes>

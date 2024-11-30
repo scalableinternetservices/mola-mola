@@ -7,9 +7,6 @@ import { AuthContext } from '../context/AuthContext';
 function UpcomingEvents() {
   const { events, isLoading, error} = useContext(EventsContext);
   const { auth } = useContext(AuthContext);
-  console.log('UpcomingEvents - events:', events);
-  console.log('UpcomingEvents - isLoading:', isLoading);
-  console.log('UpcomingEvents - error:', error);
 
   // Get the current date
   const currentDate = new Date();
@@ -19,12 +16,13 @@ function UpcomingEvents() {
     .filter((event) => new Date(event.date) >= currentDate)
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 5); // Limit to 5 events
+  
 
   if (upcomingEvents.length === 0) {
     return <p>No upcoming events available.</p>;
   }
 
-  if(auth?.token) {
+  if(!auth?.token) {
     return <p>Please log in.</p>;
   }
 
@@ -35,7 +33,9 @@ function UpcomingEvents() {
           <div className="mb-4 bg-white shadow-md rounded-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
             {/* Event Image */}
             <img
-              src={event.image}
+              src={event.image
+                ? `https://mola.zcy.moe/${event.image}`
+                : '/images/default-event-image.jpg'}
               alt={event.title}
               className="w-full h-48 object-cover"
             />

@@ -41,6 +41,10 @@ export const EventsProvider = ({ children }) => {
     );
   };
 
+  const removeEventFromState = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+  };  
+
   const addEvent = (newEvent) => {
     setEvents((prevEvents) => [...prevEvents, newEvent]);
   };
@@ -57,6 +61,7 @@ export const EventsProvider = ({ children }) => {
         isLoading,
         error,
         updateEventInState, // Ensure this is exposed
+        removeEventFromState, // Ensure this is exposed
         addEvent,
         removeEvent,
       }}

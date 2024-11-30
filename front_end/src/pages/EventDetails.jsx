@@ -1,9 +1,10 @@
 // src/pages/EventDetails.jsx
-import React, { useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useContext,useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   createRSVP,
   deleteRSVP,
+  deleteEvent
 } from '../api';
 import { AuthContext } from '../context/AuthContext';
 import { EventsContext } from '../context/EventsContext';
@@ -21,7 +22,9 @@ function EventDetails() {
   const { id } = useParams();
   const { auth } = useContext(AuthContext);
   const { token, user } = auth || {};
-  const { events, updateEventInState } = useContext(EventsContext);
+  const { events, updateEventInState, removeEventFromState} = useContext(EventsContext);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const navigate = useNavigate();
 
   // Find the event from the context
   const event = events.find((event) => event.id === parseInt(id));
@@ -30,6 +33,9 @@ function EventDetails() {
     return <div>Event not found or you need to log in to view event details.</div>;
   }
 
+  console.log(event.categories);
+
+  const isHost = user && event.host_id === user.id;
   const shareUrl = `${window.location.origin}/events/${event.id}`;
   const title = event.title;
 
@@ -76,6 +82,20 @@ function EventDetails() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteEvent(event.id, token);
+      // Remove the event from the EventsContext
+      removeEventFromState(event.id);
+      alert('Event deleted successfully.');
+      // Redirect to events list or home page
+      navigate('/events');
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      alert('Failed to delete event. Please try again.');
+    }
+  };  
+
   const imageUrl = event.image
   ? `https://mola.zcy.moe/${event.image}`
   : '/images/default-event-image.jpg'; // Use your default image path
@@ -88,7 +108,7 @@ function EventDetails() {
         alt={event.title}
         className="w-full h-96 object-cover rounded-md mb-6"
       />
-      {/* Event Title and Share Buttons */}
+      {/* Event Title  and Share Buttons */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold">{event.title}</h2>
         <div className="flex space-x-2">
@@ -103,10 +123,52 @@ function EventDetails() {
           </LinkedinShareButton>
         </div>
       </div>
+
+      <div className="flex justify-between items-center">
       <p className="text-gray-600 mt-2">
         📅 {new Date(event.date).toLocaleDateString()} at{' '}
         {new Date(event.date).toLocaleTimeString()}
       </p>
+
+        {isHost && (
+          <div className="mt-4 flex space-x-2">
+            <button
+              onClick={() => navigate(`/events/${event.id}/edit`)}
+              className="px-4 py-2 rounded-md bg-yellow-500 text-white"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setShowConfirmDelete(true)}
+              className="px-4 py-2 rounded-md bg-red-500 text-white"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+
+        {showConfirmDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-md">
+          <p className="mb-4">Are you sure you want to delete this event?</p>
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={() => setShowConfirmDelete(false)}
+              className="px-4 py-2 rounded-md bg-gray-500 text-white"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 rounded-md bg-red-500 text-white"
+            >
+              Confirm Delete
+            </button>
+          </div>
+        </div>
+        </div>
+        )}
+      </div>
       <p className="text-gray-600">📍 {event.location}</p>
       {/* Categories */}
       <div className="mt-4">
@@ -171,3 +233,4 @@ function EventDetails() {
 }
 
 export default EventDetails;
+

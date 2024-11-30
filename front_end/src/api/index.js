@@ -104,3 +104,21 @@ export const createEvent = async (eventData, token) => {
     }
     return apiRequest('/events/', 'POST', { event: eventData }, token);
 };
+
+// Delete Event API
+export const deleteEvent = async (eventId, token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to delete an event.');
+    }
+    return apiRequest(`/events/${eventId}`, 'DELETE', null, token);
+  };
+  
+
+// Update Event API
+export const updateEvent = async (eventId, eventData, token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to update an event.');
+    }
+    return apiRequest(`/events/${eventId}`, 'PUT', { event: eventData }, token);
+  };
+  
