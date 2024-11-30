@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://chuyan.eba-xfy2gqnx.us-west-2.elasticbeanstalk.com/api';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 // Helper function for making API requests
 const apiRequest = async (url, method, body = null, token = null) => {
@@ -41,27 +41,33 @@ export const loginUser = async (credentials) => {
   return apiRequest('/login', 'POST', { user: credentials });
 };
 
-// Fetch all events
-export const fetchAllEvents = async () => {
-    return apiRequest('/events', 'GET');
+// Fetch all events (token required)
+export const fetchAllEvents = async (token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to fetch events.');
+    }
+    return apiRequest('/events', 'GET', null, token);
+};
+  
+  // Fetch a single event by ID (token required)
+export const fetchEventById = async (id, token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to fetch event details.');
+    }
+    return apiRequest(`/events/${id}`, 'GET', null, token);
+};  
+
+// Create RSVP
+export const createRSVP = async (rsvpData, token) => {
+    return apiRequest('/rsvps', 'POST', rsvpData, token);
   };
   
-// Fetch a single event by ID
-export const fetchEventById = async (id) => {
-return apiRequest(`/events/${id}`, 'GET');
+// Modify RSVP
+export const modifyRSVP = async (rsvpData, token) => {
+return apiRequest('/rsvps', 'PUT', rsvpData, token);
 };
 
-// export const rsvp
-
-export const rsvpEvent = async (eventId, token) => {
-//   return apiRequest(`/events/${eventId}/rsvp`, 'POST', null, token);
-return;
-}
-
-// export const decline
-export const declineEvent = async (eventId, token) => {
-//   return apiRequest(`/events/${eventId}/decline`, 'POST', null, token);
-return;
-}
-
-  
+// Delete RSVP
+export const deleteRSVP = async (rsvpData, token) => {
+return apiRequest('/rsvps', 'DELETE', rsvpData, token);
+};
