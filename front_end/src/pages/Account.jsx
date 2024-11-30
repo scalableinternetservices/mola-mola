@@ -1,31 +1,49 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import { DatePicker, Button } from 'antd'; // For selecting dates
+import { getTotalEvents } from '../api/index'; // Assuming this is your API call
 const { RangePicker } = DatePicker;
+
+function formatDate(timestamp) {
+  const date = new Date(timestamp); // Convert the timestamp into a Date object
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so we add 1
+  const day = String(date.getDate()).padStart(2, '0'); // Pad single digit days with a leading zero
+  return `${year}-${month}-${day}`;
+}
+
 
 function Account() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [generateHeatmap, setGenerateHeatmap] = useState(false);
 
-  // Modify getVirtualData to accept startDate and endDate
-  const getVirtualData = useCallback((startDate, endDate) => {
-    if (!startDate || !endDate) return []; // Return empty array if dates are not valid
+  
+  const [heatmapData, setHeatmapData] = useState([]); // State to store the heatmap data
 
-    const startTimestamp = +echarts.time.parse(startDate.format('YYYY-MM-DD')); // Convert moment to timestamp
-    const endTimestamp = +echarts.time.parse(endDate.format('YYYY-MM-DD')); // Convert moment to timestamp
-    const dayTime = 3600 * 24 * 1000; // Milliseconds per day
-    const data = [];
-    // Loop through each day in the range and generate random data
-    for (let time = startTimestamp; time <= endTimestamp; time += dayTime) {
-      data.push([
-        echarts.time.format(time, '{yyyy}-{MM}-{dd}', false), // Format the date
-        Math.floor(Math.random() * 10000) // Generate random data
-      ]);
+  // Fetch the event data from the API and set it to state
+  const fetchData = useCallback(async (startDate, endDate) => {
+    const local_user = localStorage.getItem('user');
+    const obj = JSON.parse(local_user);
+    try {
+      const result = await getTotalEvents(`/events/count?host_id=${obj.id}&since=${startDate.format("YYYY-MM-DD")}&until=${endDate.format("YYYY-MM-DD")}`);
+      const startTimestamp = +echarts.time.parse(startDate.format('YYYY-MM-DD'));
+      const endTimestamp = +echarts.time.parse(endDate.format('YYYY-MM-DD'));
+      const dayTime = 3600 * 24 * 1000; // Milliseconds per day
+      const data = [];
+
+      for (let time = startTimestamp; time <= endTimestamp; time += dayTime) {
+        const formattedDate = formatDate(time);
+        const val = result[formattedDate] || 0; // Default to 0 if no data is found for this date
+        data.push([echarts.time.format(time, '{yyyy}-{MM}-{dd}', false), val]);
+      }
+
+      setHeatmapData(data); // Set the data to state
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
-    return data;
-  }, []);
+
 
   // Handler to update start and end dates from RangePicker
   const handleDateChange = (dates) => {
@@ -41,6 +59,8 @@ function Account() {
   // Handle button click to generate heatmap
   const handleGenerateHeatmap = () => {
     if (startDate && endDate) {
+
+      fetchData(startDate, endDate); // Fetch the data when the button is clicked
       setGenerateHeatmap(true);
     } else {
       console.error('Invalid date range selected');
@@ -52,12 +72,14 @@ function Account() {
     title: {
       top: 30,
       left: 'center',
-      text: 'Daily Step Count'
+
+      text: 'Daily Event Count'
+
     },
     tooltip: {},
     visualMap: {
       min: 0,
-      max: 5000,
+      max: 15,
       type: 'piecewise',
       orient: 'horizontal',
       left: 'center',
@@ -68,7 +90,7 @@ function Account() {
       left: 30,
       right: 30,
       cellSize: ['auto', 13],
-      range: startDate && endDate ? [startDate.format('YYYY-MM-DD'),endDate.format('YYYY-MM-DD')] : '2024', // Dynamically set range
+      range: startDate && endDate ? [startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')] : '2024', // Dynamically set range
       itemStyle: {
         borderWidth: 0.5
       },
@@ -77,7 +99,7 @@ function Account() {
     series: {
       type: 'heatmap',
       coordinateSystem: 'calendar',
-      data: generateHeatmap ? getVirtualData(startDate, endDate) : [] // Generate data on button click
+      data: heatmapData // Use the fetched data for the heatmap
     }
   };
 
