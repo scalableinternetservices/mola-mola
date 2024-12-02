@@ -45,3 +45,23 @@ export const loginUser = async (credentials) => {
 export const getTotalEvents = async (url) => {
   return apiRequest(url, 'GET');
 };
+
+// Invitation API
+export const getInvites = async (url) => {
+  return apiRequest(url, 'GET');
+};
+
+// Event API
+export const getEvent = async (url) => {
+  return apiRequest(url, 'GET');
+};
+
+// Invite API
+export const followUser = async (followData) => {
+  return apiRequest('/follows', 'POST', { follow: followData });
+};
+
+// User by id API
+export const getUserByID = async (url) => {
+  return apiRequest('/users/'+url, 'GET');
+};
