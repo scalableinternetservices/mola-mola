@@ -1,12 +1,12 @@
 // src/components/Navbar.jsx
-import React, { useState, useContext, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext, useRef } from 'react'; 
+import { Link } from 'react-router-dom';  // Make sure to import Link from react-router-dom
 import LoginModal from './LoginModal';
 import RegisterModal from './RegistrationModal';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';  // Make sure AuthContext is imported
 
 function Navbar() {
-  const { auth, logout } = useContext(AuthContext); // Use `auth` from context
+  const { auth, logout } = useContext(AuthContext);  // Use auth context
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -34,17 +34,12 @@ function Navbar() {
             <Link to="/">Mola-Mola</Link>
           </div>
           <div className="flex items-center">
-            <Link to="/" className="mx-2">
-              Home
-            </Link>
-            <Link to="/groups" className="mx-2">
-              Groups
-            </Link>
-            <Link to="/events" className="mx-2">
-              Events
-            </Link>
+            <Link to="/" className="mx-2">Home</Link>
+            <Link to="/groups" className="mx-2">Groups</Link>
+            <Link to="/events" className="mx-2">Events</Link>
+            
             {/* Authentication Buttons */}
-            {!auth.user ? ( // Check `auth.user`
+            {!auth.user ? (  // Check if user is logged in
               <button
                 onClick={() => setIsLoginModalOpen(true)}
                 className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -57,7 +52,7 @@ function Navbar() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center bg-gray-200 px-4 py-2 rounded-md"
                 >
-                  {auth.user.username}{/* Display username */}
+                  {auth.user.username} {/* Display username */}
                   <svg
                     className="w-4 h-4 ml-1"
                     fill="none"
@@ -75,6 +70,13 @@ function Navbar() {
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       My Account
+                    </Link>
+                    <Link
+                      to="/followed"
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      My Followings
                     </Link>
                     <Link
                       to="/notifications"
@@ -104,8 +106,8 @@ function Navbar() {
         <LoginModal
           onClose={() => setIsLoginModalOpen(false)}
           onShowRegister={() => {
-            setIsLoginModalOpen(false); // Close the login modal
-            setShowRegisterModal(true); // Open the register modal
+            setIsLoginModalOpen(false);
+            setShowRegisterModal(true);
           }}
         />
       )}
@@ -115,4 +117,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default Navbar;  // Ensure Navbar is exported correctly

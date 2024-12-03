@@ -49,6 +49,27 @@ export const getTotalEvents = async (url, token) => {
     return apiRequest(url, 'GET',null, token);
 };
 
+
+// Invitation API
+export const getInvites = async (url) => {
+  return apiRequest(url, 'GET');
+};
+
+// Event API
+export const getEvent = async (url) => {
+  return apiRequest(url, 'GET');
+};
+
+// Invite API
+export const followUser = async (followData) => {
+  return apiRequest('/follows', 'POST', { follow: followData });
+};
+
+// User by id API
+export const getUserByID = async (url) => {
+  return apiRequest('/users/'+url, 'GET');
+};
+
 // Fetch all events (token required)
 export const fetchAllEvents = async (token) => {
     if (!token) {
@@ -121,4 +142,4 @@ export const updateEvent = async (eventId, eventData, token) => {
     }
     return apiRequest(`/events/${eventId}`, 'PUT', { event: eventData }, token);
   };
-  
+

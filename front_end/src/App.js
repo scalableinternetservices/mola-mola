@@ -8,6 +8,7 @@ import Events from './pages/Events';
 import EventDetails from './pages/EventDetails';
 import CreateEvent from './pages/CreateEvent';
 import NotFound from './pages/NotFound';
+import FollowPage from './pages/FollowPage';
 import Notifications from './pages/Notifications';
 import PrivateRoute from './components/PrivateRoute';
 import EditEvent from './pages/EditEvent';
@@ -20,6 +21,7 @@ function App() {
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/account" element={<Account />} />
+      <Route path="/followed" element={<FollowPage />} />
       <Route path="/notifications" element={<Notifications />} />
 
         {/* <Route path="/groups" element={<Groups />} /> */}
