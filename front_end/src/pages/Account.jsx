@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect,useContext } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import { DatePicker, Button } from 'antd'; // For selecting dates
 import { getTotalEvents } from '../api/index'; // Assuming this is your API call
+import { AuthContext } from '../context/AuthContext';
 const { RangePicker } = DatePicker;
 
 function formatDate(timestamp) {
@@ -14,6 +15,7 @@ function formatDate(timestamp) {
 }
 
 function Account() {
+  const { auth } = useContext(AuthContext);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [generateHeatmap, setGenerateHeatmap] = useState(false);
@@ -21,10 +23,13 @@ function Account() {
 
   // Fetch the event data from the API and set it to state
   const fetchData = useCallback(async (startDate, endDate) => {
-    const local_user = localStorage.getItem('user');
-    const obj = JSON.parse(local_user);
+    const user = auth?.user;
+    if (!user) alert('Please log in to view this data');
+    const token = auth?.token;
+    if (!token) alert('Please log in to view this data');
+
     try {
-      const result = await getTotalEvents(`/events/count?host_id=${obj.id}&since=${startDate.format("YYYY-MM-DD")}&until=${endDate.format("YYYY-MM-DD")}`);
+      const result = await getTotalEvents(`/events/count?host_id=${user?.id}&since=${startDate.format("YYYY-MM-DD")}&until=${endDate.format("YYYY-MM-DD")}`, token);
       const startTimestamp = +echarts.time.parse(startDate.format('YYYY-MM-DD'));
       const endTimestamp = +echarts.time.parse(endDate.format('YYYY-MM-DD'));
       const dayTime = 3600 * 24 * 1000; // Milliseconds per day
@@ -42,6 +47,7 @@ function Account() {
     }
   }, []);
 
+
   // Handler to update start and end dates from RangePicker
   const handleDateChange = (dates) => {
     if (dates && dates.length === 2) {
@@ -56,6 +62,7 @@ function Account() {
   // Handle button click to generate heatmap
   const handleGenerateHeatmap = () => {
     if (startDate && endDate) {
+
       fetchData(startDate, endDate); // Fetch the data when the button is clicked
       setGenerateHeatmap(true);
     } else {
@@ -68,7 +75,9 @@ function Account() {
     title: {
       top: 30,
       left: 'center',
+
       text: 'Daily Event Count'
+
     },
     tooltip: {},
     visualMap: {

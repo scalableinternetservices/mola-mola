@@ -1,64 +1,71 @@
 // src/context/EventsContext.js
-import React, { createContext, useState } from 'react';
-import { eventsData as initialEventsData } from '../mockdata/eventsData';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { fetchAllEvents } from '../api';
+import { AuthContext } from './AuthContext';
 
 export const EventsContext = createContext();
-
 export const EventsProvider = ({ children }) => {
-  const [events, setEvents] = useState(initialEventsData);
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { auth } = useContext(AuthContext);
 
-  // Function to handle RSVP
-  const toggleRSVP = (eventId, userId) => {
+  useEffect(() => {
+    console.log('Auth token changed:', auth?.token);
+    const loadEvents = async () => {
+      if (!auth?.token) {
+        setEvents([]); // Clear events when logged out
+        return;
+      }
+      setIsLoading(true);
+      setError('');
+      try {
+        const eventsData = await fetchAllEvents(auth.token);
+        console.log('Fetched events data:', eventsData); // Add this log
+        setEvents(eventsData);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        setError('Failed to fetch events');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadEvents();
+  }, [auth?.token]);
+
+  const updateEventInState = (updatedEvent) => {
     setEvents((prevEvents) =>
-      prevEvents.map((event) => {
-        if (event.id === eventId) {
-          const isRSVPed = event.rsvps.includes(userId);
-          let updatedRSVPs = event.rsvps;
-          let updatedDeclines = event.declines;
-
-          if (isRSVPed) {
-            // Cancel RSVP
-            updatedRSVPs = event.rsvps.filter((id) => id !== userId);
-          } else {
-            // Add RSVP and remove from declines if present
-            updatedRSVPs = [...event.rsvps, userId];
-            updatedDeclines = event.declines.filter((id) => id !== userId);
-          }
-
-          return { ...event, rsvps: updatedRSVPs, declines: updatedDeclines };
-        }
-        return event;
-      })
+      prevEvents.map((event) =>
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
     );
   };
 
-  // Function to handle Decline
-  const toggleDecline = (eventId, userId) => {
-    setEvents((prevEvents) =>
-      prevEvents.map((event) => {
-        if (event.id === eventId) {
-          const isDeclined = event.declines.includes(userId);
-          let updatedRSVPs = event.rsvps;
-          let updatedDeclines = event.declines;
+  const removeEventFromState = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+  };  
 
-          if (isDeclined) {
-            // Cancel Decline
-            updatedDeclines = event.declines.filter((id) => id !== userId);
-          } else {
-            // Add to declines and remove from RSVPs if present
-            updatedDeclines = [...event.declines, userId];
-            updatedRSVPs = event.rsvps.filter((id) => id !== userId);
-          }
+  const addEvent = (newEvent) => {
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+  };
 
-          return { ...event, rsvps: updatedRSVPs, declines: updatedDeclines };
-        }
-        return event;
-      })
-    );
+  const removeEvent = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
   };
 
   return (
-    <EventsContext.Provider value={{ events, toggleRSVP, toggleDecline }}>
+    <EventsContext.Provider
+      value={{
+        events,
+        setEvents,
+        isLoading,
+        error,
+        updateEventInState, // Ensure this is exposed
+        removeEventFromState, // Ensure this is exposed
+        addEvent,
+        removeEvent,
+      }}
+    >
       {children}
     </EventsContext.Provider>
   );

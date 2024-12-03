@@ -39,6 +39,12 @@ export const AuthProvider = ({ children }) => {
       token: response.token,
       user: response.user,
     });
+    
+    console.log('Auth after login:', auth); // Add this log
+    return {
+      token: response.token,
+      user: response.user,
+    };
   };
 
   const logout = () => {
