@@ -20,6 +20,6 @@ class User < ApplicationRecord
     end
 
     def followers_on_event(event_id)
-      followers.joins(:rsvps).where(rsvps: { event_id: event_id }).select(:id, :username)
+      followers.joins(:rsvps).where(rsvps: { event_id: event_id }, privacy: "public").select(:id, :username)
     end
 end

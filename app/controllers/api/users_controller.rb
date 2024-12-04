@@ -8,7 +8,9 @@ module Api
         # Success: return the list of all users
         def index
             unless params[:keyword].nil?
-                users = User.where("email LIKE ?", "%#{params[:keyword]}%").or(User.where("username LIKE ?", "%#{params[:keyword]}%"))
+                users = User.where("email LIKE ?", "%#{params[:keyword]}%")
+                            .or(User.where("username LIKE ?", "%#{params[:keyword]}%"))
+                            .filter { |user| user.privacy == 'public' }
             else 
                 users = User.all
             end
