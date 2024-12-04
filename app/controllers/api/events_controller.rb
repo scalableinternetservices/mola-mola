@@ -2,7 +2,8 @@ require 'date'
 
 module Api
   class EventsController < ApplicationController
-    # skip_before_action :authenticate, only: [:index, :show, :count]
+    skip_before_action :authenticate, only: [:index, :show, :count]
+    before_action :try_authenticate, only: [:index, :show, :count]
     before_action :set_event, only: [:show, :update, :destroy]
     before_action :authorize_host!, only: [:update, :destroy]
     before_action :set_host_user, only: [:index, :count], if: -> { params[:host_id].present? }
