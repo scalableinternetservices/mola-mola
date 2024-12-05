@@ -14,7 +14,7 @@ class User < ApplicationRecord
     has_many :followed_users, through: :follows, source: :followee
     has_many :followers, through: :follows, source: :follower
 
-    scope :public, -> { where(privacy: 'public') }
+    scope :user_public, -> { where(privacy: 'public') }
     def as_json(option = {})
       super(option).except('password_digest', 'created_at', 'updated_at', 'privacy')
     end
