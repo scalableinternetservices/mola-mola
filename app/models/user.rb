@@ -16,7 +16,7 @@ class User < ApplicationRecord
 
     scope :user_public, -> { where(privacy: 'public') }
     def as_json(option = {})
-      super(option).except('password_digest', 'created_at', 'updated_at', 'privacy')
+      super(option).except('password_digest', 'created_at', 'updated_at')
     end
 
     def followers_on_event(event_id)
