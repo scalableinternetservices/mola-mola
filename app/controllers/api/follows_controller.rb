@@ -2,8 +2,6 @@ module Api
   class FollowsController < ApplicationController
     # If :user_id present in params (which means requesting to /api/users/:user_id/follows), set @user to the user with that ID
     before_action :set_active_user, if: -> { params[:user_id].present? }
-    # If :status present in params (which means requesting with ?status=pending/accepted/declined), validate the status
-    before_action :validate_status, if: -> { params[:status].present? }, only: [:sent, :received]
 
     # GET /api/users/:user_id/follows/sent
     # Return the list of all follows sent by the user with the given ID, requires authentication
@@ -11,11 +9,7 @@ module Api
     #  User does not exist: return 404 Not Found
     #  User is not the current user: return 403 Forbidden
     def sent
-      unless params[:status].nil?
-        @sent_follows = Follow.where(follower_id: @active_user.id, status: params[:status])
-      else
-        @sent_follows = Follow.where(follower_id: @active_user.id)                
-      end
+      @sent_follows = Follow.where(follower_id: @active_user.id)                
       render json: @sent_follows, status: :ok
     end
 
@@ -25,11 +19,7 @@ module Api
     #  User does not exist: return 404 Not Found
     #  User is not the current user: return 403 Forbidden
     def received
-      unless params[:status].nil?
-        @received_follows = Follow.where(followee_id: @active_user.id, status: params[:status])                
-      else
-        @received_follows = Follow.where(followee_id: @active_user.id)
-      end
+      @received_follows = Follow.where(followee_id: @active_user.id)
       render json: @received_follows, status: :ok
     end
 
@@ -56,10 +46,17 @@ module Api
     # Success: return the new follow
     #  Follow already exists: return 400 Bad Request
     def create
-      create_params = params.require(:follow).permit(:followee_id, :event_id)
+      create_params = params.require(:follow).permit(:followee_id)
       create_params[:follower_id] = @user.id
+
+      if create_params[:follower_id] == create_params[:followee_id]
+        return render(json: { error: 'User cannot follow oneself' }, status: :bad_request)
+      end
+
       # Check if the follow exists
-      old_follow = Follow.find_by(follower_id: create_params[:follower_id], followee_id: create_params[:followee_id])
+      old_follow = Follow.find_by(
+        follower_id: create_params[:follower_id],
+        followee_id: create_params[:followee_id])
       unless old_follow.nil?
         return render(json: { error: 'Follow already exists', follow_id: old_follow.id }, status: :bad_request)
       end
@@ -72,21 +69,16 @@ module Api
         render json: { error: 'Invalid response' }, status: :bad_request
       end
     end
-    # to do: users cann't follow oneself 
 
     # DELETE /api/follows/:id
-    # Delete the follow with the given ID, requires authentication
+    # Delete the follow where the follower is current user, followee is the user with the given ID, requires authentication
     # Success: return 200 OK
     #   Follow does not belong to the current user: return 403 Forbidden
     def destroy
       begin
-        follow = Follow.find(params[:id])
-        if follow.follower_id == @user.id
-          follow.destroy
-          render json: { message: 'Follow deleted successfully' }, status: :ok
-        else
-          render json: { error: 'Deleting someone else\'s follow' }, status: :forbidden
-        end
+        follow = Follow.find_by(follower_id: @user.id, followee_id: params[:id])
+        follow.destroy
+        render json: { message: 'Follow deleted successfully' }, status: :ok
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Follow not found' }, status: :not_found
       end
@@ -106,10 +98,5 @@ module Api
       end
     end
 
-    def validate_status
-      unless %w[pending accepted declined].include? params[:status]
-        render json: { error: 'Invalid status in request' }, status: :bad_request
-      end
-    end
   end
 end
