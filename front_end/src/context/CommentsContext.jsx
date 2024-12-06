@@ -1,31 +1,69 @@
-// src/context/CommentsContext.js
-import React, { createContext, useState } from 'react';
-import { mockCommentsData } from '../mockdata/commentsData';
+import React, { createContext, useState, useCallback } from 'react';
+import { getCommentsForEvent, createCommentForEvent, updateCommentForEvent, deleteCommentForEvent } from '../api';
 
 export const CommentsContext = createContext();
 
 export const CommentsProvider = ({ children }) => {
-  const [comments, setComments] = useState(mockCommentsData);
+  const [commentsByEvent, setCommentsByEvent] = useState({});
 
-  // Function to add a new comment
-  const addComment = (eventId, userId, content) => {
-    const newComment = {
-      id: Date.now(),
-      eventId,
-      userId,
-      content,
-      createdAt: new Date().toISOString(),
-    };
-    setComments((prevComments) => [...prevComments, newComment]);
+  const fetchCommentsForEvent = useCallback(async (eventId) => {
+    try {
+      const comments = await getCommentsForEvent(eventId);
+      setCommentsByEvent((prev) => ({ ...prev, [eventId]: comments }));
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  }, []);
+
+  const addComment = async (eventId, content, token) => {
+    try {
+      const newComment = await createCommentForEvent(eventId, content, token);
+      setCommentsByEvent((prev) => {
+        const existingComments = prev[eventId] || [];
+        return { ...prev, [eventId]: [...existingComments, newComment] };
+      });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      throw error;
+    }
   };
 
-  // Function to get comments for a specific event
+  // Update an existing comment
+  const updateComment = async (eventId, commentId, content, token) => {
+    try {
+      const updatedComment = await updateCommentForEvent(eventId, commentId, content, token);
+      setCommentsByEvent((prev) => {
+        const existingComments = prev[eventId] || [];
+        const updatedComments = existingComments.map((c) => (c.id === commentId ? updatedComment : c));
+        return { ...prev, [eventId]: updatedComments };
+      });
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      throw error;
+    }
+  };
+
+  // Delete a comment
+  const deleteComment = async (eventId, commentId, token) => {
+    try {
+      await deleteCommentForEvent(eventId, commentId, token);
+      setCommentsByEvent((prev) => {
+        const existingComments = prev[eventId] || [];
+        const updatedComments = existingComments.filter((c) => c.id !== commentId);
+        return { ...prev, [eventId]: updatedComments };
+      });
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      throw error;
+    }
+  };
+
   const getCommentsByEventId = (eventId) => {
-    return comments.filter((comment) => comment.eventId === eventId);
+    return commentsByEvent[eventId] || [];
   };
 
   return (
-    <CommentsContext.Provider value={{ comments, addComment, getCommentsByEventId }}>
+    <CommentsContext.Provider value={{ getCommentsByEventId, fetchCommentsForEvent, addComment, updateComment, deleteComment }}>
       {children}
     </CommentsContext.Provider>
   );

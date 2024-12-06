@@ -150,3 +150,31 @@ export const updateUser = async (userId, userData, token) => {
     }
     return apiRequest(`/users/${userId}`, 'PUT', { user: userData }, token);
 };
+
+
+// Comments API
+// Comments API
+export const getCommentsForEvent = async (eventId) => {
+  return apiRequest(`/events/${eventId}/comments`, 'GET');
+};
+
+export const createCommentForEvent = async (eventId, content, token) => {
+  if (!token) {
+    throw new Error('Authentication token is required to create a comment.');
+  }
+  return apiRequest(`/events/${eventId}/comments`, 'POST', { comment: { content } }, token);
+};
+
+export const updateCommentForEvent = async (eventId, commentId, content, token) => {
+  if (!token) {
+    throw new Error('Authentication token is required to update a comment.');
+  }
+  return apiRequest(`/events/${eventId}/comments/${commentId}`, 'PUT', { comment: { content } }, token);
+};
+
+export const deleteCommentForEvent = async (eventId, commentId, token) => {
+  if (!token) {
+    throw new Error('Authentication token is required to delete a comment.');
+  }
+  return apiRequest(`/events/${eventId}/comments/${commentId}`, 'DELETE', null, token);
+};

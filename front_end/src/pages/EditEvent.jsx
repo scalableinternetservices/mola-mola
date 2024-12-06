@@ -101,7 +101,7 @@ function EditEvent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate required fields
-    if (!title || !description || !date || !time || !location) {
+    if (!title || !description || !date || !time || !location || !selectedTags) {
       alert('Please fill in all required fields.');
       return;
     }
