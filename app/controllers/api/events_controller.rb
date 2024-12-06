@@ -15,9 +15,10 @@ module Api
       else
         @events = Event.all
       end
+      paginated_events = @events.page(params[:page]).per(20)
 
       if @user.present?
-        events_with_extra_field = @events.map do |event|
+        events_with_extra_field = paginated_events.map do |event|
           followed_attendees = User
             .joins(:follows, :rsvps)
             .where(follows: { follower_id: @user.id }, rsvps: { event_id: event.id, status: 'accepted' })
@@ -29,7 +30,7 @@ module Api
             .merge(followed_users: followed_attendees)
         end
       else
-        events_with_extra_field = @events
+        events_with_extra_field = paginated_events
       end
 
       render json: events_with_extra_field

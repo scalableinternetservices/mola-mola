@@ -28,6 +28,7 @@ gem "bootsnap", require: false
 gem "jwt"
 
 gem "aws-sdk-s3"
+gem 'kaminari'
 
 gem 'rack-cors', require: 'rack/cors'
 

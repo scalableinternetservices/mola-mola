@@ -126,6 +126,18 @@ GEM
     jmespath (1.6.2)
     jwt (2.9.3)
       base64
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
     logger (1.6.1)
     loofah (2.23.1)
       crass (~> 1.0.2)
@@ -246,6 +258,7 @@ DEPENDENCIES
   debug
   importmap-rails
   jwt
+  kaminari
   pg (~> 1.5.9)
   puma (>= 5.0)
   rack-cors
