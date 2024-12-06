@@ -18,10 +18,15 @@ module Api
 
       if @user.present?
         events_with_extra_field = @events.map do |event|
+          followed_attendees = User
+            .joins(:follows, :rsvps)
+            .where(follows: { follower_id: @user.id }, rsvps: { event_id: event.id, status: 'accepted' })
+            .distinct
+            .select(:id, :username)
           event
             .as_json
             .merge(rsvp_status: event.rsvp_status(@user))
-            .merge(followed_users: event.followed_users(@user))
+            .merge(followed_users: followed_attendees)
         end
       else
         events_with_extra_field = @events
@@ -60,9 +65,14 @@ module Api
     def show
       @event = Event.find(params[:id])
       if @user.present?
+        followed_attendees = User
+          .joins(:follows, :rsvps)
+          .where(follows: { follower_id: @user.id }, rsvps: { event_id: @event.id, status: 'accepted' })
+          .distinct
+          .select(:id, :username)
         json_event = @event.as_json.merge(
           rsvp_status: @event.rsvp_status(@user),
-          followed_users: @event.followed_users(@user)
+          followed_users: followed_attendees
         )
       else
         json_event = @event.as_json
