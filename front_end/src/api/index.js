@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3000';
 
 // Helper function for making API requests
 const apiRequest = async (url, method, body = null, token = null) => {
