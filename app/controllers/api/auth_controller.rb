@@ -34,6 +34,7 @@ module Api
             followed_users: @user.followed_users.map {
               |user| user.slice(:id, :username)
             },
+            privacy: @user.privacy
           }
         }, status: :ok
       else
