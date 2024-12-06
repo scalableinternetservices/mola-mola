@@ -54,8 +54,18 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const setUserPrivacy = (newPrivacy)=>{
+    setAuth({
+      ...auth,
+      user: {
+        ...auth.user,
+        privacy: newPrivacy
+      }
+    });
+  }
+
   return (
-    <AuthContext.Provider value={{ auth, register, login, logout }}>
+    <AuthContext.Provider value={{ auth, register, login, logout, setUserPrivacy }}>
       {children}
     </AuthContext.Provider>
   );

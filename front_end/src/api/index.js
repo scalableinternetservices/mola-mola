@@ -143,3 +143,10 @@ export const updateEvent = async (eventId, eventData, token) => {
     return apiRequest(`/events/${eventId}`, 'PUT', { event: eventData }, token);
   };
 
+// Update User API
+export const updateUser = async (userId, userData, token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to update a user.');
+    }
+    return apiRequest(`/users/${userId}`, 'PUT', { user: userData }, token);
+};
