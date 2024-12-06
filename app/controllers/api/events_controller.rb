@@ -95,13 +95,18 @@ module Api
     def update
       @event = Event.find(params[:id])
       update_params = event_params
-      for category in update_params[:categories]
-        if category.include?(";")
-          render json: { error: "Categories cannot contain semicolons" }, status: :bad_request
-          return
+      if update_params[:categories].present?
+        update_params[:categories].each do |category|
+          if category.include?(";")
+            render json: { error: "Categories cannot contain semicolons" }, status: :bad_request
+            return
+          end
         end
+        update_params[:categories] = update_params[:categories].join(";")
+      else
+        update_params.delete(:categories)
       end
-      update_params[:categories] = update_params[:categories].join(";")
+      
       if @event.update(update_params)
         render json: @event
       else
