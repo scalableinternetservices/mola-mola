@@ -113,9 +113,6 @@ module Api
       # If not, create the RSVP
       rsvp = Rsvp.new(create_params)
       if rsvp.save
-        # For each follower of the user on this event, create / update an RSVP for them
-        followers = @user.followers_on_event(rsvp.event_id)
-        create_or_update_rsvp_for(followers, rsvp.event_id, rsvp.status)
         render json: rsvp, status: :created
       else
         render json: { error: 'Invalid response' }, status: :bad_request
@@ -150,9 +147,6 @@ module Api
     
       # Update the RSVP
       if rsvp.update(update_params)
-        # Update RSVPs for followers if the status changes
-        followers = @user.followers_on_event(rsvp.event_id)
-        create_or_update_rsvp_for(followers, rsvp.event_id, rsvp.status)
         render json: rsvp, status: :ok
       else
         render json: { error: 'Invalid update' }, status: :bad_request
@@ -235,20 +229,5 @@ module Api
       end
     end
 
-    def create_or_update_rsvp_for(followers, event_id, status)
-      followers.each do |follower|
-        follower_old_rsvp = Rsvp.find_by(user_id: follower.id, event_id: event_id)
-        if follower_old_rsvp.nil?
-          follower_rsvp = Rsvp.new(
-            user_id: follower.id,
-            event_id: event_id,
-            status: status
-          )
-          follower_rsvp.save
-        else
-          follower_old_rsvp.update(status: status)
-        end
-      end
-    end
   end
 end
