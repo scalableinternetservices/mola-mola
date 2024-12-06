@@ -38,7 +38,8 @@ module Api
         #   Update failed: return 400 Bad Request
         def update
             begin
-                @user.update(user_params)
+                update_params = params.require(:user).permit(:privacy)
+                @user.update!(update_params)
                 render json: @user, status: :ok # Successfully updated, return updated user status
             rescue
                 render json: { error: 'Update failed' }, status: :bad_request
@@ -56,10 +57,6 @@ module Api
         end
 
         private
-
-        def user_params
-            params.require(:user).permit(:email, :password, :password_confirmation)
-        end
 
         def authenticate_user_themselves
             if String(@user.id) != params[:id]

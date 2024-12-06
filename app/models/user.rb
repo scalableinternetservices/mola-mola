@@ -3,7 +3,7 @@ class User < ApplicationRecord
 
     validates :username, presence: true, uniqueness: true
     validates :email, presence: true, uniqueness: true
-    validates :password, presence: true, length: { minimum: 6 }
+    validates :password_digest, presence: true
     validates :privacy, inclusion: { in: %w[public private], message: "%{value} is not a valid privacy setting" }
     has_many :hosted_events, class_name: "Event", foreign_key: "host_id"
 
