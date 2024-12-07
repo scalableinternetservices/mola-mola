@@ -65,3 +65,11 @@ export const followUser = async (followData) => {
 export const getUserByID = async (url) => {
   return apiRequest('/users/'+url, 'GET');
 };
+
+export const getUsersByName = async (url) => {
+  return apiRequest('/users?keyword='+url, 'GET');
+};
+
+export const getUsers = async (url) => {
+  return apiRequest('/users', 'GET');
+};
