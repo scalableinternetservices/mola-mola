@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_06_211038) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_07_193003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -78,7 +78,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_06_211038) do
     t.string "privacy", default: "public", null: false
   end
 
-  add_foreign_key "comments", "events"
+  add_foreign_key "comments", "events", on_delete: :cascade
   add_foreign_key "comments", "users"
   add_foreign_key "events", "users", column: "host_id"
   add_foreign_key "follows", "users", column: "followee_id"
