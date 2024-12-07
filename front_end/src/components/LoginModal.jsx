@@ -1,8 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { EventsContext } from '../context/EventsContext';
+import { fetchAllEvents } from '../api';
 
 function LoginModal({ onClose, onShowRegister }) {
   const { login } = useContext(AuthContext); // Login function from AuthContext
+  const { setEvents } = useContext(EventsContext); // setEvents function from EventsContext
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,12 +17,20 @@ function LoginModal({ onClose, onShowRegister }) {
     setLoading(true);
 
     try {
-      // Use login from AuthContext
-      await login({ email, password });
+      // Perform login
+      const userData = await login({ email, password });
       alert('Login successful!');
+
+      // // Use the updated token to fetch events
+      // if (userData.token) {
+      //   console.log('Fetching events...');
+      //   const eventsData = await fetchAllEvents(userData.token); // Pass the token directly
+      //   setEvents(eventsData); // Update the EventsContext
+      // }
+
       onClose();
     } catch (err) {
-      // Capture and display errors
+      // Handle errors
       setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);

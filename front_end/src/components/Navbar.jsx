@@ -35,7 +35,7 @@ function Navbar() {
           </div>
           <div className="flex items-center">
             <Link to="/" className="mx-2">Home</Link>
-            <Link to="/groups" className="mx-2">Groups</Link>
+            {/* <Link to="/groups" className="mx-2">Groups</Link> */}
             <Link to="/events" className="mx-2">Events</Link>
             
             {/* Authentication Buttons */}

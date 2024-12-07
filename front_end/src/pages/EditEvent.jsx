@@ -1,50 +1,48 @@
-// src/pages/CreateEvent.jsx
+// src/pages/EditEvent.jsx
 import React, { useState, useContext, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { EventsContext } from '../context/EventsContext';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { getPresignedUrl, createEvent } from '../api'; // Import API functions
+import { updateEvent, getPresignedUrl } from '../api';
 
-function CreateEvent() {
-  const { addEvent } = useContext(EventsContext);
+function EditEvent() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { auth } = useContext(AuthContext);
   const { user, token } = auth || {};
-  const navigate = useNavigate();
+  const { events, updateEventInState } = useContext(EventsContext);
+
+  const event = events.find((event) => event.id === parseInt(id));
 
   useEffect(() => {
     if (!user || !token) {
-      alert('Please log in to create an event.');
+      alert('Please log in to edit an event.');
       navigate('/login');
+    } else if (!event) {
+      alert('Event not found.');
+      navigate('/events');
+    } else if (event.host_id !== user.id) {
+      alert('You are not authorized to edit this event.');
+      navigate(`/events/${id}`);
     }
-  }, [user, token, navigate]);
+  }, [user, token, event, navigate, id]);
 
-  // Form state variables
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [categories, setCategories] = useState('');
-  const [tags, setTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+  // Form state variables initialized with event data
+  const [title, setTitle] = useState(event ? event.title : '');
+  const [description, setDescription] = useState(event ? event.description : '');
+  const [date, setDate] = useState(event ? event.date.split('T')[0] : '');
+  const [time, setTime] = useState(event ? event.date.split('T')[1].slice(0, 5) : '');
+  const [location, setLocation] = useState(event ? event.location : '');
+  const [selectedTags, setSelectedTags] = useState(event ? event.categories : []);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Image upload state variables
   const [imageFile, setImageFile] = useState(null);
-  const [imageKey, setImageKey] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [imageKey, setImageKey] = useState(event ? event.image : null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(
+    event && event.image ? `https://mola.zcy.moe/${event.image}` : null
+  );
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-
-  const handleGenerateTags = () => {
-    setIsGeneratingTags(true);
-    // Simulate AI-generated tags
-    setTimeout(() => {
-      const generatedTags = ['Music', 'Networking', 'Workshop', 'Art', 'Tech'];
-      setTags(generatedTags);
-      setIsGeneratingTags(false);
-    }, 1000);
-  };
 
   const handleTagSelection = (tag) => {
     if (selectedTags.includes(tag)) {
@@ -59,8 +57,6 @@ function CreateEvent() {
     setImageFile(file);
     if (file) {
       setImagePreviewUrl(URL.createObjectURL(file));
-    } else {
-      setImagePreviewUrl(null);
     }
   };
 
@@ -73,18 +69,17 @@ function CreateEvent() {
     setIsUploadingImage(true);
 
     try {
-      // Step 1: Get presigned URL and key
+      // Get presigned URL and key
       const uploadData = await getPresignedUrl(token);
-
       const presignedUrl = uploadData.url;
       const uploadedImageKey = uploadData.key;
 
-      // Step 2: Upload the image using the presigned URL
+      // Upload the image using the presigned URL
       const uploadResponse = await fetch(presignedUrl, {
         method: 'PUT',
         body: imageFile,
         headers: {
-          'Content-Type': imageFile.type, // Set the content type of the file
+          'Content-Type': imageFile.type,
         },
       });
 
@@ -95,11 +90,9 @@ function CreateEvent() {
       // Image uploaded successfully
       setImageKey(uploadedImageKey);
       alert('Image uploaded successfully.');
-
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Failed to upload image. Please try again.');
-      // Do not set imageKey; the user can try uploading again
     } finally {
       setIsUploadingImage(false);
     }
@@ -108,7 +101,7 @@ function CreateEvent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate required fields
-    if (!title || !description || !date || !time || !location) {
+    if (!title || !description || !date || !time || !location || !selectedTags) {
       alert('Please fill in all required fields.');
       return;
     }
@@ -123,47 +116,40 @@ function CreateEvent() {
       return;
     }
 
-    // Prepare event data
+    // Prepare event data with fields to be updated
     const eventData = {
-      title,
-      description,
-      date: eventDateTime.toISOString(),
-      location,
-      categories: selectedTags,
-      // Include image only if imageKey is available
-      ...(imageKey && { image: imageKey }),
+      // Only include fields that have changed
+      ...(title !== event.title && { title }),
+      ...(description !== event.description && { description }),
+      ...(eventDateTime.toISOString() !== event.date && { date: eventDateTime.toISOString() }),
+      ...(location !== event.location && { location }),
+      ...(selectedTags !== event.categories && { categories: selectedTags }),
+      ...(imageKey !== event.image && { image: imageKey }),
     };
 
+    if (Object.keys(eventData).length === 0) {
+      alert('No changes made to the event.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Create the event via API
-      const createdEvent = await createEvent(eventData, token);
+      // Update the event via API
+      const updatedEvent = await updateEvent(event.id, eventData, token);
 
-      // Add default values for missing fields
-      createdEvent.rsvp_status = 'pending';
-      createdEvent.followed_users = [];
+      // Manually set rsvp_status and followed_users to their previous values
+      updatedEvent.rsvp_status = event.rsvp_status;
+      updatedEvent.followed_users = event.followed_users;
 
-      // Add the new event to the EventsContext
-      addEvent(createdEvent);
+      // Update the event in the EventsContext
+      updateEventInState(updatedEvent);
 
-      // Reset the form
-      setTitle('');
-      setDescription('');
-      setDate('');
-      setTime('');
-      setLocation('');
-      setCategories('');
-      setTags([]);
-      setSelectedTags([]);
-      setImageFile(null);
-      setImageKey(null);
-      setImagePreviewUrl(null);
-
-      alert('Event created successfully!');
+      alert('Event updated successfully!');
       // Redirect to the event details page
-      navigate(`/events/${createdEvent.id}`);
+      navigate(`/events/${event.id}`);
     } catch (error) {
-      console.error('Error creating event:', error);
-      alert('Failed to create event. Please try again.');
+      console.error('Error updating event:', error);
+      alert('Failed to update event. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -171,7 +157,7 @@ function CreateEvent() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-6">Create an Event</h2>
+      <h2 className="text-2xl font-bold mb-6">Edit Event</h2>
       <form onSubmit={handleSubmit}>
         {/* Event Title */}
         <div className="mb-4">
@@ -196,39 +182,6 @@ function CreateEvent() {
             placeholder="Describe your event"
           />
         </div>
-        {/* Generate Tags */}
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={handleGenerateTags}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            Generate Tags
-          </button>
-          {isGeneratingTags && <p className="text-gray-600 mt-2">Generating tags...</p>}
-        </div>
-        {/* Display Generated Tags */}
-        {tags.length > 0 && (
-          <div className="mb-4">
-            <label className="block text-gray-700">Recommended Tags:</label>
-            <div className="mt-2">
-              {tags.map((tag, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => handleTagSelection(tag)}
-                  className={`inline-block mr-2 mb-2 px-3 py-1 rounded-full ${
-                    selectedTags.includes(tag)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 text-gray-700'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
         {/* Event Date */}
         <div className="mb-4">
           <label className="block text-gray-700">Event Date:</label>
@@ -263,6 +216,19 @@ function CreateEvent() {
             placeholder="Enter event location"
           />
         </div>
+        {/* Event Categories */}
+        <div className="mb-4">
+          <label className="block text-gray-700">Event Categories:</label>
+          <input
+            type="text"
+            className="mt-1 block w-full border border-gray-300 rounded-md p-3"
+            value={selectedTags.join(', ')}
+            onChange={(e) =>
+              setSelectedTags(e.target.value.split(',').map((tag) => tag.trim()))
+            }
+            placeholder="Enter categories separated by commas"
+          />
+        </div>
         {/* Event Image Upload */}
         <div className="mb-6">
           <label className="block text-gray-700">Event Image:</label>
@@ -287,21 +253,21 @@ function CreateEvent() {
           >
             {isUploadingImage ? 'Uploading Image...' : 'Upload Image'}
           </button>
-          {imageKey && (
+          {imageKey && imageKey !== event.image && (
             <p className="text-green-600 mt-2">Image uploaded successfully.</p>
           )}
         </div>
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-green-500 text-white py-3 rounded-md hover:bg-green-600 transition duration-200"
+          className="w-full bg-yellow-500 text-white py-3 rounded-md hover:bg-yellow-600 transition duration-200"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Creating Event...' : 'Create Event'}
+          {isSubmitting ? 'Updating Event...' : 'Update Event'}
         </button>
       </form>
     </div>
   );
 }
 
-export default CreateEvent;
+export default EditEvent;

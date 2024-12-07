@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect,useContext } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
 import { DatePicker, Button } from 'antd'; // For selecting dates
-import { getTotalEvents } from '../api/index'; // Assuming this is your API call
+import { getTotalEvents, updateUser } from '../api/index'; // Assuming this is your API call
+import { AuthContext } from '../context/AuthContext';
 const { RangePicker } = DatePicker;
 
 function formatDate(timestamp) {
@@ -14,17 +15,22 @@ function formatDate(timestamp) {
 }
 
 function Account() {
+  const { auth, setUserPrivacy } = useContext(AuthContext);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [generateHeatmap, setGenerateHeatmap] = useState(false);
   const [heatmapData, setHeatmapData] = useState([]); // State to store the heatmap data
+  const [privacy, setPrivacy] = useState(auth?.user?.privacy || 'public');
 
   // Fetch the event data from the API and set it to state
   const fetchData = useCallback(async (startDate, endDate) => {
-    const local_user = localStorage.getItem('user');
-    const obj = JSON.parse(local_user);
+    const user = auth?.user;
+    if (!user) alert('Please log in to view this data');
+    const token = auth?.token;
+    if (!token) alert('Please log in to view this data');
+
     try {
-      const result = await getTotalEvents(`/events/count?host_id=${obj.id}&since=${startDate.format("YYYY-MM-DD")}&until=${endDate.format("YYYY-MM-DD")}`);
+      const result = await getTotalEvents(`/events/count?host_id=${user?.id}&since=${startDate.format("YYYY-MM-DD")}&until=${endDate.format("YYYY-MM-DD")}`, token);
       const startTimestamp = +echarts.time.parse(startDate.format('YYYY-MM-DD'));
       const endTimestamp = +echarts.time.parse(endDate.format('YYYY-MM-DD'));
       const dayTime = 3600 * 24 * 1000; // Milliseconds per day
@@ -42,6 +48,7 @@ function Account() {
     }
   }, []);
 
+
   // Handler to update start and end dates from RangePicker
   const handleDateChange = (dates) => {
     if (dates && dates.length === 2) {
@@ -56,6 +63,7 @@ function Account() {
   // Handle button click to generate heatmap
   const handleGenerateHeatmap = () => {
     if (startDate && endDate) {
+
       fetchData(startDate, endDate); // Fetch the data when the button is clicked
       setGenerateHeatmap(true);
     } else {
@@ -63,12 +71,38 @@ function Account() {
     }
   };
 
+  const handlePrivacyUpdate = async (newPrivacy) => {
+    if (!auth || !auth.user || !auth.token) {
+      alert('Please log in to update privacy settings.');
+      return;
+    }
+  
+    try {
+      const updatedUser = await updateUser(auth.user.id, { privacy: newPrivacy }, auth.token);
+      // Update local state or context with updatedUser
+      setPrivacy(updatedUser.privacy);
+      // Update the user privacy in the AuthContext
+      setUserPrivacy(updatedUser.privacy);
+    } catch (error) {
+      console.error('Error updating privacy:', error);
+      alert('Failed to update privacy. Please try again.');
+    }
+  };
+
+  const handlePrivacyClick = (newPrivacy) => {
+    if (newPrivacy !== privacy) {
+      handlePrivacyUpdate(newPrivacy);
+    }
+  };
+  
   // ECharts option for heatmap
   const option = {
     title: {
       top: 30,
       left: 'center',
+
       text: 'Daily Event Count'
+
     },
     tooltip: {},
     visualMap: {
@@ -99,10 +133,28 @@ function Account() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-4">Heat Map</h2>
+      {/* Privacy Switch */}
+      <div className="mb-4">
+        <h3 className="text-xl font-bold mb-2">Privacy Settings</h3>
+        <div className="flex space-x-2">
+          <button
+            className={`px-4 py-2 rounded-md ${privacy === 'public' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
+            onClick={() => handlePrivacyClick('public')}
+          >
+            Public
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md ${privacy === 'private' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
+            onClick={() => handlePrivacyClick('private')}
+          >
+            Private
+          </button>
+        </div>
+      </div>
 
       {/* Date Range Picker */}
       <div className="mb-4">
+      <h2 className="text-xl font-bold mb-4">Heat Map</h2>
         <RangePicker
           format="YYYY-MM-DD"
           onChange={handleDateChange}

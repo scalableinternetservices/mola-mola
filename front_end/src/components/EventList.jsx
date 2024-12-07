@@ -4,7 +4,7 @@ import EventCard from './EventCard';
 function EventList({ events }) {
     
 if (events.length === 0) {
-    return <p>No events found.</p>;
+    return <p>No events found or not authorized to view events, please login.</p>;
     }
 
   return (

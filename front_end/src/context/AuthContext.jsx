@@ -39,6 +39,12 @@ export const AuthProvider = ({ children }) => {
       token: response.token,
       user: response.user,
     });
+    
+    console.log('Auth after login:', auth); // Add this log
+    return {
+      token: response.token,
+      user: response.user,
+    };
   };
 
   const logout = () => {
@@ -48,8 +54,18 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const setUserPrivacy = (newPrivacy)=>{
+    setAuth({
+      ...auth,
+      user: {
+        ...auth.user,
+        privacy: newPrivacy
+      }
+    });
+  }
+
   return (
-    <AuthContext.Provider value={{ auth, register, login, logout }}>
+    <AuthContext.Provider value={{ auth, register, login, logout, setUserPrivacy }}>
       {children}
     </AuthContext.Provider>
   );
