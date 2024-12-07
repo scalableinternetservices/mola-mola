@@ -1,37 +1,55 @@
 // src/context/EventsContext.js
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { fetchAllEvents } from '../api';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { fetchAllEvents, getTotalEventCount } from '../api';
 import { AuthContext } from './AuthContext';
 
 export const EventsContext = createContext();
+
 export const EventsProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1); // Track current page
   const { auth } = useContext(AuthContext);
+  //pagination related
+  const perPage = 20;
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    console.log('Auth token changed:', auth?.token);
-    const loadEvents = async () => {
+  const fetchEvents = useCallback(
+    async (pageNum = 1) => {
       if (!auth?.token) {
-        setEvents([]); // Clear events when logged out
+        setEvents([]);
         return;
       }
       setIsLoading(true);
       setError('');
       try {
-        const eventsData = await fetchAllEvents(auth.token);
-        console.log('Fetched events data:', eventsData); // Add this log
+        const eventsData = await fetchAllEvents(auth.token, pageNum);
         setEvents(eventsData);
+
+        // fetch total_count once (or you can cache it)
+        const { total_count } = await getTotalEventCount();
+        const calculatedPages = Math.ceil(total_count / perPage);
+        setTotalPages(calculatedPages);
+        setPage(pageNum);
       } catch (error) {
         console.error('Failed to fetch events:', error);
         setError('Failed to fetch events');
       } finally {
         setIsLoading(false);
       }
-    };
-    loadEvents();
-  }, [auth?.token]);
+    },
+    [auth?.token]
+  );
+
+  // Fetch the first page of events whenever the token changes
+  useEffect(() => {
+    if (auth?.token) {
+      fetchEvents(1);
+    } else {
+      setEvents([]);
+    }
+  }, [auth?.token, fetchEvents]);
 
   const updateEventInState = (updatedEvent) => {
     setEvents((prevEvents) =>
@@ -43,7 +61,7 @@ export const EventsProvider = ({ children }) => {
 
   const removeEventFromState = (eventId) => {
     setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
-  };  
+  };
 
   const addEvent = (newEvent) => {
     setEvents((prevEvents) => [...prevEvents, newEvent]);
@@ -60,10 +78,13 @@ export const EventsProvider = ({ children }) => {
         setEvents,
         isLoading,
         error,
-        updateEventInState, // Ensure this is exposed
-        removeEventFromState, // Ensure this is exposed
+        page,
+        fetchEvents,
+        updateEventInState,
+        removeEventFromState,
         addEvent,
         removeEvent,
+        totalPages
       }}
     >
       {children}

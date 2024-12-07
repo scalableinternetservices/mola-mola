@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 // Helper function for making API requests
 const apiRequest = async (url, method, body = null, token = null) => {
@@ -71,14 +71,27 @@ export const getUserByID = async (url) => {
 };
 
 // Fetch all events (token required)
-export const fetchAllEvents = async (token) => {
-    if (!token) {
-      throw new Error('Authentication token is required to fetch events.');
-    }
-    return apiRequest('/events', 'GET', null, token);
+// export const fetchAllEvents = async (token) => {
+//     if (!token) {
+//       throw new Error('Authentication token is required to fetch events.');
+//     }
+//     return apiRequest('/events', 'GET', null, token);
+// };
+
+export const fetchAllEvents = async (token, page = 1) => {
+  if (!token) {
+    throw new Error('Authentication token is required to fetch events.');
+  }
+  // Add the page parameter to the URL
+  return apiRequest(`/events?page=${page}`, 'GET', null, token);
 };
-  
-  // Fetch a single event by ID (token required)
+
+// pagination API
+export const getTotalEventCount = async() =>{
+  return apiRequest('/events/total_count', 'GET');
+};
+
+// Fetch a single event by ID (token required)
 export const fetchEventById = async (id, token) => {
     if (!token) {
       throw new Error('Authentication token is required to fetch event details.');
