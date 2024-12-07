@@ -30,6 +30,7 @@ Rails.application.routes.draw do
       end
     end
     get '/events/count', to: 'events#count'
+    get '/events/total_count', to: 'events#total_count'
     resources :events, only: [:show, :create, :update, :destroy]
     # Add events and comments
     resources :events do

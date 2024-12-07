@@ -2,7 +2,7 @@ require 'date'
 
 module Api
   class EventsController < ApplicationController
-    skip_before_action :authenticate, only: [:index, :show, :count]
+    skip_before_action :authenticate, only: [:index, :show, :count,:total_count]
     before_action :try_authenticate, only: [:index, :show, :count]
     before_action :set_event, only: [:show, :update, :destroy]
     before_action :authorize_host!, only: [:update, :destroy]
@@ -34,6 +34,11 @@ module Api
       end
 
       render json: events_with_extra_field
+    end
+    # GET /api/events/total_count
+    def total_count
+      total_events = Event.count
+      render json: { total_count: total_events }
     end
 
     # GET /api/events/count
