@@ -33,7 +33,7 @@ function EditEvent() {
   const [date, setDate] = useState(event ? event.date.split('T')[0] : '');
   const [time, setTime] = useState(event ? event.date.split('T')[1].slice(0, 5) : '');
   const [location, setLocation] = useState(event ? event.location : '');
-  const [selectedTags, setSelectedTags] = useState(event ? event.categories : []);
+  const [selectedTags, setSelectedTags] = useState(event && event.categories ? event.categories : []);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Image upload state variables
@@ -100,8 +100,10 @@ function EditEvent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log(selectedTags)
     // Validate required fields
-    if (!title || !description || !date || !time || !location || !selectedTags) {
+    if (!title || !description || !date || !time || !location ) {
       alert('Please fill in all required fields.');
       return;
     }
