@@ -95,6 +95,35 @@ module Api
         render json: { error: 'Invalid response' }, status: :bad_request
       end
     end
+    
+    
+    # DELETE /api/invites/:id
+    # Deletes an invite by its ID, requires authentication
+    # Success: returns 204 No Content
+    # Invite does not exist: returns 404 Not Found
+    # User is not the inviter: returns 403 Forbidden
+    def destroy
+      # Find the invite by ID
+      invite = Invite.find_by(id: params[:id])
+    
+      # Check if the invite exists
+      if invite.nil?
+        return render(json: { error: 'Invite not found' }, status: :not_found)
+      end
+    
+      # Ensure the current user is the inviter
+      if invite.inviter_id != @user.id
+        return render(json: { error: 'You are not authorized to delete this invite' }, status: :forbidden)
+      end
+    
+      # Delete the invite
+      if invite.destroy
+        render json: {}, status: :no_content
+      else
+        render json: { error: 'Failed to delete invite' }, status: :bad_request
+      end
+    end
+    
 
     private
 
