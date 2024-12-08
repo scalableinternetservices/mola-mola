@@ -70,6 +70,14 @@ export const getUserByID = async (url) => {
   return apiRequest('/users/'+url, 'GET');
 };
 
+export const getUsersByName = async (url) => {
+  return apiRequest('/users?keyword='+url, 'GET');
+};
+
+export const getUsers = async (url) => {
+  return apiRequest('/users', 'GET');
+};
+
 // Fetch all events (token required)
 // export const fetchAllEvents = async (token) => {
 //     if (!token) {
@@ -166,7 +174,6 @@ export const updateUser = async (userId, userData, token) => {
 
 
 // Comments API
-// Comments API
 export const getCommentsForEvent = async (eventId) => {
   return apiRequest(`/events/${eventId}/comments`, 'GET');
 };
@@ -191,3 +198,4 @@ export const deleteCommentForEvent = async (eventId, commentId, token) => {
   }
   return apiRequest(`/events/${eventId}/comments/${commentId}`, 'DELETE', null, token);
 };
+

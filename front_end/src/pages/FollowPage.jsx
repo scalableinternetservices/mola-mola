@@ -1,15 +1,16 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext'; // Make sure to import AuthContext
-import { message, Spin, Input, List, Button } from 'antd'; // Import Ant Design components
-import { getUserByID, followUser } from '../api'; // Make sure the correct API methods are imported
+import { AuthContext } from '../context/AuthContext';
+import { message, Spin, Input, List, Button, Radio } from 'antd';
+import { getUserByID, getUsersByName, followUser } from '../api';
 
-const { Search } = Input; // Destructure Search component from Input
+const { Search } = Input;
 
 function FollowPage() {
   const { auth } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [searchedUser, setSearchedUser] = useState(null);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [searchMode, setSearchMode] = useState('id'); // Default to search by ID
 
   useEffect(() => {
     if (auth.token) {
@@ -17,15 +18,23 @@ function FollowPage() {
     }
   }, [auth.token]);
 
+  // Handle search based on the selected mode (ID or Name)
   const handleSearch = async (value) => {
     if (!value) {
-      message.error('Please enter a valid user ID');
+      message.error('Please enter a valid input');
       return;
     }
+
     setSearchLoading(true);
     try {
-      const response = await getUserByID(value);
-      setSearchedUser(response);
+      let response;
+      if (searchMode === 'id') {
+        response = await getUserByID(value);
+        setSearchedUser([response]); // Wrap the response in an array for consistency
+      } else if (searchMode === 'name') {
+        response = await getUsersByName(value);
+        setSearchedUser(response); // Multiple results are returned here
+      }
     } catch (error) {
       message.error('Failed to find user');
       setSearchedUser(null);
@@ -33,6 +42,7 @@ function FollowPage() {
     setSearchLoading(false);
   };
 
+  // Handle follow action
   const handleFollow = async (userId) => {
     try {
       const followData = { follow: { event_id: 1, followee_id: userId } };
@@ -56,20 +66,29 @@ function FollowPage() {
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Follow Page</h2>
 
       <div style={{ marginBottom: '30px' }}>
+        <Radio.Group 
+          value={searchMode} 
+          onChange={(e) => setSearchMode(e.target.value)} 
+          style={{ marginBottom: '20px' }}
+        >
+          <Radio value="id">Search by ID</Radio>
+          <Radio value="name">Search by Name</Radio>
+        </Radio.Group>
+
         <Search
-          placeholder="Enter user ID"
+          placeholder={searchMode === 'id' ? 'Enter user ID' : 'Enter username'}
           enterButton="Search"
           size="large"
           onSearch={handleSearch}
         />
       </div>
 
-      {searchedUser && (
+      {searchedUser && searchedUser.length > 0 && (
         <div style={{ marginBottom: '30px' }}>
-          <h3>User Found:</h3>
+          <h3>{searchMode === 'id' ? 'User Found' : 'Users Found'}:</h3>
           <List
             itemLayout="horizontal"
-            dataSource={[searchedUser]} // Wrap the searched user in an array
+            dataSource={searchedUser} // Now supports multiple users for search by name
             renderItem={(user) => (
               <List.Item
                 actions={[
