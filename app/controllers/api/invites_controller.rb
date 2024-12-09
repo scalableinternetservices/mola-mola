@@ -122,6 +122,32 @@ module Api
       else
         render json: { error: 'Failed to delete invite' }, status: :bad_request
       end
+    end 
+    
+    # DELETE /api/invites/delete_by_keys
+    # Deletes an invite based on event_id and invitee_id, requires authentication
+    # Success: returns 204 No Content
+    # Invite does not exist: returns 404 Not Found
+    # User is not the inviter: returns 403 Forbidden
+    def delete_by_keys
+      # Ensure event_id and invitee_id are provided
+      event_id = params.require(:event_id)
+      invitee_id = params.require(:invitee_id)
+    
+      # Find the invite by event_id, invitee_id, and inviter_id
+      invite = Invite.find_by(event_id: event_id, invitee_id: invitee_id, inviter_id: @user.id)
+    
+      # Check if the invite exists
+      if invite.nil?
+        return render(json: { error: 'Invite not found' }, status: :not_found)
+      end
+    
+      # Delete the invite
+      if invite.destroy
+        render json: {}, status: :no_content
+      else
+        render json: { error: 'Failed to delete invite' }, status: :bad_request
+      end
     end
     
 

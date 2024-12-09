@@ -45,9 +45,12 @@ Rails.application.routes.draw do
       end
     end
     # POST /api/invites
-    resources :invites, only: [:create, :show, :destroy]
+    resources :invites, only: [:create, :show]
     # POST /api/invites/:id/{accept,decline}
-    resources :invites do
+    resources :invites , only: [] do
+      collection do
+        delete :delete_by_keys
+      end
       member do
         post :accept
         post :decline
