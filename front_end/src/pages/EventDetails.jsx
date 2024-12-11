@@ -1,4 +1,3 @@
-// src/pages/EventDetails.jsx
 import React, { useContext, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -175,7 +174,7 @@ function EventDetails() {
       <FollowUsersModal
         visible={isFollowModalVisible}
         onClose={() => setIsFollowModalVisible(false)}
-        eventId={event.id} 
+        eventId={event.id}
       />
 
       <p className="text-gray-600">📍 {event.location}</p>
@@ -209,13 +208,6 @@ function EventDetails() {
               >
                 Decline
               </button>
-              {/* Button to trigger FollowUsersModal */}
-              <button
-                onClick={() => setIsFollowModalVisible(true)}
-                className="px-4 py-2 rounded-md bg-blue-500 text-white"
-              >
-                Follow Users
-              </button>
             </>
           ) : (
             <button
@@ -225,6 +217,13 @@ function EventDetails() {
               Cancel Response
             </button>
           )}
+          {/* Button to trigger FollowUsersModal */}
+          <button
+            onClick={() => setIsFollowModalVisible(true)}
+            className="px-4 py-2 rounded-md bg-blue-500 text-white"
+          >
+            Follow Users
+          </button>
         </div>
       )}
       {/* Followed Users Attending */}
