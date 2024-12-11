@@ -45,14 +45,45 @@ export const loginUser = async (credentials) => {
 export const getTotalEvents = async (url, token) => {
     if (!token) {
         throw new Error('Authentication token is required to get a presigned URL.');
-      }
+    }
     return apiRequest(url, 'GET',null, token);
 };
 
 
 // Invitation API
-export const getInvites = async (url) => {
-  return apiRequest(url, 'GET');
+export const createInvites = async (data, token) => {
+    if (!token) {
+      throw new Error('Authentication token is required to get a presigned URL.');
+    }
+  return apiRequest('/invites', 'POST', data, token);
+};
+
+export const getSentInvites = async (id, token) => {
+  if (!token) {
+      throw new Error('Authentication token is required to get a presigned URL.');
+  }
+  return apiRequest(`/users/${id}/invites/sent`, 'GET', null, token);
+};
+
+export const getReceivedInvites = async (id, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+  }
+  return apiRequest(`/users/${id}/invites/received`, 'GET', null, token);
+};
+
+export const acceptInvitation = async (id, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+    }
+  return apiRequest(`/invites/${id}/accept`, 'POST', null, token);
+};
+
+export const declineInvitation = async (id, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+    }
+  return apiRequest(`/invites/${id}/decline`, 'POST', null, token);
 };
 
 // Event API
@@ -61,6 +92,14 @@ export const getEvent = async (url) => {
 };
 
 // Invite API
+export const inviteUser = async (inviteData, token) => {
+      if (!token) {
+        throw new Error('Authentication token is required to create a follow.');
+      }
+  return apiRequest('/invites', 'POST', {invite: inviteData}, token);
+};
+
+// Follow API
 export const followUser = async (followData) => {
   return apiRequest('/follows', 'POST', { follow: followData });
 };

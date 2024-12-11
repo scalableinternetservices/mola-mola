@@ -1,10 +1,10 @@
 // src/pages/EventDetails.jsx
-import React, { useContext,useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   createRSVP,
   deleteRSVP,
-  deleteEvent
+  deleteEvent,
 } from '../api';
 import { AuthContext } from '../context/AuthContext';
 import { EventsContext } from '../context/EventsContext';
@@ -18,12 +18,15 @@ import {
   LinkedinIcon,
 } from 'react-share';
 
+import FollowUsersModal from '../components/FollowUsersModal'; // Import the FollowUsersModal component
+
 function EventDetails() {
   const { id } = useParams();
   const { auth } = useContext(AuthContext);
   const { token, user } = auth || {};
-  const { events, updateEventInState, removeEventFromState} = useContext(EventsContext);
+  const { events, updateEventInState, removeEventFromState } = useContext(EventsContext);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [isFollowModalVisible, setIsFollowModalVisible] = useState(false); // State to control the modal visibility
   const navigate = useNavigate();
 
   // Find the event from the context
@@ -32,8 +35,6 @@ function EventDetails() {
   if (!event) {
     return <div>Event not found or you need to log in to view event details.</div>;
   }
-
-  console.log(event.categories);
 
   const isHost = user && event.host_id === user.id;
   const shareUrl = `${window.location.origin}/events/${event.id}`;
@@ -94,11 +95,11 @@ function EventDetails() {
       console.error('Error deleting event:', error);
       alert('Failed to delete event. Please try again.');
     }
-  };  
+  };
 
   const imageUrl = event.image
-  ? `https://mola.zcy.moe/${event.image}`
-  : '/images/default-event-image.jpg'; // Use your default image path
+    ? `https://mola.zcy.moe/${event.image}`
+    : '/images/default-event-image.jpg'; // Use your default image path
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -125,10 +126,10 @@ function EventDetails() {
       </div>
 
       <div className="flex justify-between items-center">
-      <p className="text-gray-600 mt-2">
-        📅 {new Date(event.date).toLocaleDateString()} at{' '}
-        {new Date(event.date).toLocaleTimeString()}
-      </p>
+        <p className="text-gray-600 mt-2">
+          📅 {new Date(event.date).toLocaleDateString()} at{' '}
+          {new Date(event.date).toLocaleTimeString()}
+        </p>
 
         {isHost && (
           <div className="mt-4 flex space-x-2">
@@ -148,27 +149,35 @@ function EventDetails() {
         )}
 
         {showConfirmDelete && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-6 rounded-md">
-          <p className="mb-4">Are you sure you want to delete this event?</p>
-          <div className="flex justify-end space-x-2">
-            <button
-              onClick={() => setShowConfirmDelete(false)}
-              className="px-4 py-2 rounded-md bg-gray-500 text-white"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 rounded-md bg-red-500 text-white"
-            >
-              Confirm Delete
-            </button>
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-md">
+              <p className="mb-4">Are you sure you want to delete this event?</p>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="px-4 py-2 rounded-md bg-gray-500 text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="px-4 py-2 rounded-md bg-red-500 text-white"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-        </div>
         )}
       </div>
+
+      {/* Follow Users Modal */}
+      <FollowUsersModal
+        visible={isFollowModalVisible}
+        onClose={() => setIsFollowModalVisible(false)}
+        eventId={event.id} 
+      />
+
       <p className="text-gray-600">📍 {event.location}</p>
       {/* Categories */}
       <div className="mt-4">
@@ -199,6 +208,13 @@ function EventDetails() {
                 className="px-4 py-2 rounded-md bg-gray-500 text-white"
               >
                 Decline
+              </button>
+              {/* Button to trigger FollowUsersModal */}
+              <button
+                onClick={() => setIsFollowModalVisible(true)}
+                className="px-4 py-2 rounded-md bg-blue-500 text-white"
+              >
+                Follow Users
               </button>
             </>
           ) : (
@@ -233,4 +249,3 @@ function EventDetails() {
 }
 
 export default EventDetails;
-
