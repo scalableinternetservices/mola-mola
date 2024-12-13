@@ -1,6 +1,5 @@
 const API_BASE_URL = 'http://localhost:3000/api';
 
-// Helper function for making API requests
 const apiRequest = async (url, method, body = null, token = null) => {
   try {
     const headers = {
@@ -15,19 +14,31 @@ const apiRequest = async (url, method, body = null, token = null) => {
       body: body ? JSON.stringify(body) : null,
     });
 
+    // If the response status is not ok (i.e., not 2xx), throw an error
     if (!response.ok) {
-      // Parse error response
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Something went wrong');
+      let errorData = {};
+      try {
+        errorData = await response.json();
+      } catch (error) {
+        // If the response can't be parsed as JSON, just throw the raw status
+        errorData = { error: 'Something went wrong' };
+      }
+      throw new Error(errorData.error || `Error: ${response.status}`);
     }
 
-    // Parse and return response JSON
+    // Handle 204 No Content (no body to parse)
+    if (response.status === 204) {
+      return response;  // Return response without parsing, as there's no content
+    }
+
+    // Parse and return the response as JSON if there is a body
     return response.json();
   } catch (error) {
     console.error('API request error:', error);
     throw new Error(error.message || 'An unknown error occurred');
   }
 };
+
 
 // Exported APIs
 
@@ -45,14 +56,52 @@ export const loginUser = async (credentials) => {
 export const getTotalEvents = async (url, token) => {
     if (!token) {
         throw new Error('Authentication token is required to get a presigned URL.');
-      }
+    }
     return apiRequest(url, 'GET',null, token);
 };
 
 
 // Invitation API
-export const getInvites = async (url) => {
-  return apiRequest(url, 'GET');
+export const inviteUser = async (inviteData, token) => {
+      if (!token) {
+        throw new Error('Authentication token is required to create a follow.');
+      }
+  return apiRequest('/invites', 'POST', {invite: inviteData}, token);
+};
+
+export const getSentInvites = async (id, token) => {
+  if (!token) {
+      throw new Error('Authentication token is required to get sent invites.');
+  }
+  return apiRequest(`/users/${id}/invites/sent`, 'GET', null, token);
+};
+
+export const getReceivedInvites = async (id, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to get received invites.');
+  }
+  return apiRequest(`/users/${id}/invites/received`, 'GET', null, token);
+};
+
+export const acceptInvitation = async (id, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+    }
+  return apiRequest(`/invites/${id}/accept`, 'POST', null, token);
+};
+
+export const declineInvitation = async (id, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to get a presigned URL.');
+    }
+  return apiRequest(`/invites/${id}/decline`, 'POST', null, token);
+};
+
+export const cancelSentInvite = async (body, token) => {
+  if (!token) {
+        throw new Error('Authentication token is required to delete invite.');
+    }
+  return apiRequest('/invites/delete_by_keys', 'DELETE', body, token);
 };
 
 // Event API
@@ -60,7 +109,7 @@ export const getEvent = async (url) => {
   return apiRequest(url, 'GET');
 };
 
-// Invite API
+// Follow API
 export const followUser = async (followData) => {
   return apiRequest('/follows', 'POST', { follow: followData });
 };

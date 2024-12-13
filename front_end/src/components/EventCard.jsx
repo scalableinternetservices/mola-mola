@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { EventsContext } from '../context/EventsContext';
 import { AuthContext } from '../context/AuthContext';
 import { createRSVP, modifyRSVP, deleteRSVP } from '../api';
+import FollowUsersModal from '../components/FollowUsersModal'; // Import the FollowUsersModal component
 
 function EventCard({ event }) {
   const { auth } = useContext(AuthContext);
