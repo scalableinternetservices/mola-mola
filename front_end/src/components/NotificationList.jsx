@@ -35,7 +35,7 @@ const NotificationList = () => {
     setError(null); // Reset error state before making the API call
     try {
       const response = await acceptInvitation(id, token);  // Call the acceptInvitation function
-      if (response.status === 'success') {
+      if (response.status === 'accepted') {
         setReceivedInvitations((prevInvitations) =>
           prevInvitations.map((invitation) =>
             invitation.id === id ? { ...invitation, status: 'accepted' } : invitation
@@ -54,7 +54,7 @@ const NotificationList = () => {
     setError(null); // Reset error state before making the API call
     try {
       const response = await declineInvitation(id, token);  // Call the declineInvitation function
-      if (response.status === 'success') {
+      if (response.status === 'declined') {
         setReceivedInvitations((prevInvitations) =>
           prevInvitations.map((invitation) =>
             invitation.id === id ? { ...invitation, status: 'declined' } : invitation
@@ -100,6 +100,9 @@ const NotificationList = () => {
               <div>
                 <h4 className="text-lg font-medium">{invitation.name}</h4>
                 <p className="text-sm text-gray-500">Status: {invitation.status}</p>
+                {/* Add Event ID and Inviter ID */}
+                <p className="text-sm text-gray-500">Event ID: {invitation.event_id}</p>
+                <p className="text-sm text-gray-500">Inviter ID: {invitation.inviter_id}</p>
               </div>
               <div className="flex space-x-2">
                 {invitation.status === 'pending' ? (
@@ -144,6 +147,8 @@ const NotificationList = () => {
                 <h4 className="text-lg font-medium">Event ID: {invitation.event_id}</h4>
                 <p className="text-sm text-gray-500">Invitee ID: {invitation.invitee_id}</p>
                 <p className="text-sm text-gray-500">Status: {invitation.status}</p>
+                {/* Add Inviter ID */}
+                <p className="text-sm text-gray-500">Inviter ID: {invitation.inviter_id}</p>
               </div>
             </div>
           ))}
