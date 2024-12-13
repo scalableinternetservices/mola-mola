@@ -1,0 +1,225 @@
+<!DOCTYPE tsung SYSTEM "/usr/share/tsung/tsung-1.0.dtd">
+<tsung loglevel="debug">
+    <clients>
+        <client host="localhost" use_controller_vm="true" maxusers="114514"/>
+    </clients>
+    <servers>
+        <server host="localhost" port="3000" type="tcp"/>
+    </servers>
+    <load>
+        <arrivalphase phase="1" duration="10" unit="second">
+            <users arrivalrate="1" unit="second"/>
+        </arrivalphase>
+        <arrivalphase phase="2" duration="10" unit="second">
+            <users arrivalrate="2" unit="second"/>
+        </arrivalphase>
+        <arrivalphase phase="3" duration="10" unit="second">
+            <users arrivalrate="4" unit="second"/>
+        </arrivalphase>
+        <arrivalphase phase="4" duration="10" unit="second">
+            <users arrivalrate="8" unit="second"/>
+        </arrivalphase>
+        <arrivalphase phase="5" duration="10" unit="second">
+            <users arrivalrate="16" unit="second"/>
+        </arrivalphase>
+        <arrivalphase phase="6" duration="10" unit="second">
+            <users arrivalrate="32" unit="second"/>
+        </arrivalphase>
+        <arrivalphase phase="7" duration="10" unit="second">
+            <users arrivalrate="64" unit="second"/>
+        </arrivalphase>
+    </load>
+    <sessions>
+                <!-- User creates and views an event -->
+        <session name="create_and_view_event" probability="25" type="ts_http">
+            <!-- Register account -->
+            <request subst="true">
+                <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
+                <dyn_variable name="user_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/register" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/register.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views event -->
+            <request subst="true">
+                <http url="/api/events?page=1" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User creates a new event -->
+            <request subst="true">
+                <dyn_variable name="event_id" re='\"id\": \"([^\"]+)\"' />
+                <http url="/api/events" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/create_event.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>            
+            </request>
+            <!-- User views the event created -->
+            <request subst="true">
+                <http url="/api/events/%%_event_id%%" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+        </session>
+
+        <!-- User views a random event and leaves a comment -->
+        <session name="view_and_comment_event" probability="25" type="ts_http">
+           <!-- Register account -->
+            <request subst="true">
+                <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
+                <dyn_variable name="user_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/register" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/register.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views event -->
+            <request subst="true">
+                <http url="/api/events?page=1" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views a random event -->
+            <setdynvars sourcetype="random_number" start="1" end="20"><var name="event_id"/></setdynvars>
+            <request subst="true">
+                <dyn_variable name="event_id" re='\"id\": \"([^\"]+)\"' />
+                <http url="/api/events/%%_event_id%%" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>            
+            </request>
+            <thinktime value="2"/>
+            <!-- User leaves a comment on the event -->
+            <request subst="true">
+                <dyn_variable name="comment_id" re='\"id\": \"([^\"]+)\"' />
+                <http url="/api/events/%%_event_id%%/comments" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/create_comment.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <!-- User edits their comment on the event -->
+            <request subst="true">
+                <http url="/api/events/%%_event_id%%/comments/%%_comment_id%%" method="PUT" version="1.1" contents_from_file="./tsung_scripts/json/update_comment.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+        </session>
+
+        <!-- User registers, views events, views a specific event, makes an RSVP, and gets the number of RSVPs -->
+        <session name="register_view_rsvp" probability="25" type="ts_http">
+            <!-- Register account -->
+            <request subst="true">
+                <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
+                <dyn_variable name="user_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/register" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/register.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views all events -->
+            <request subst="true">
+                <http url="/api/events?page=1" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views a specific event -->
+            <setdynvars sourcetype="random_number" start="1" end="20"><var name="event_id"/></setdynvars>
+            <request subst="true">
+                <http url="/api/events/%%_event_id%%" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User makes an RSVP -->
+            <request subst="true">
+                <dyn_variable name="rsvp_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/events/%%_event_id%%/rsvp" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/create_rsvp.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User gets the number of RSVPs within a time range -->
+            <request subst="true">
+                <http url="/api/events/%%_event_id%%/rsvps?start_time=2024-12-01T00:00:00Z&amp;end_time=2024-12-31T23:59:59Z" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+        </session>
+
+        <!-- User registers, views events, views a specific event, invites another user, and checks sent invites -->
+        <session name="register_view_invite" probability="25" type="ts_http">
+            <!-- Register account -->
+            <request subst="true">
+                <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
+                <dyn_variable name="user_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/register" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/register.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views all events -->
+            <request subst="true">
+                <http url="/api/events?page=1" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User views a specific event -->
+            <setdynvars sourcetype="random_number" start="1" end="20"><var name="event_id"/></setdynvars>
+            <request subst="true">
+                <http url="/api/events/%%_event_id%%" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User invites another user to the event -->
+            <setdynvars sourcetype="random_number" start="1" end="20"><var name="invited_user_id"/></setdynvars>
+            <request subst="true">
+                <dyn_variable name="invite_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/events/%%_event_id%%/invite" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/invite_user.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User checks sent invites -->
+            <request subst="true">
+                <http url="/api/invites/sent" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+        </session>
+
+        <!-- User registers, follows another user, and checks followed users -->
+        <session name="register_follow_check" probability="25" type="ts_http">
+            <!-- Register account -->
+            <request subst="true">
+                <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
+                <dyn_variable name="user_id" re='\"id\": \"([^\"]+)\"'/>
+                <http url="/api/register" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/register.json">
+                    <http_header name="Content-Type" value="application/json"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User follows another user -->
+            <setdynvars sourcetype="random_number" start="1" end="20"><var name="followed_user_id"/></setdynvars>
+            <request subst="true">
+                <http url="/api/follows" method="POST" version="1.1" contents_from_file="./tsung_scripts/json/follow_user.json">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+            <thinktime value="2"/>
+            <!-- User checks followed users -->
+            <request subst="true">
+                <http url="/api/users/followed" method="GET" version="1.1">
+                    <http_header name="Authorization" value="Bearer %%_token%%"/>
+                </http>
+            </request>
+        </session>
+    </sessions>
+</tsung>

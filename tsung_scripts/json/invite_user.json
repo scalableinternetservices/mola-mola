@@ -1,0 +1,6 @@
+{
+    "invite": {
+        "event_id": "%%_event_id%%",
+        "invitee_id": "%%_invited_user_id%%"
+    }
+}

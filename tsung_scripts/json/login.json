@@ -1,0 +1,6 @@
+{
+    "user": {
+        "email": "test%%ts_user_server:get_unique_id%%@example.com",
+        "password": "test_password_%%ts_user_server:get_unique_id%%"
+    }
+}
