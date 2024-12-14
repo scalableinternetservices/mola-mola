@@ -7,31 +7,31 @@
         <server host="localhost" port="3000" type="tcp"/>
     </servers>
     <load>
-        <arrivalphase phase="1" duration="10" unit="second">
+        <arrivalphase phase="1" duration="60" unit="second">
             <users arrivalrate="1" unit="second"/>
         </arrivalphase>
-        <arrivalphase phase="2" duration="10" unit="second">
+        <arrivalphase phase="2" duration="60" unit="second">
             <users arrivalrate="2" unit="second"/>
         </arrivalphase>
-        <arrivalphase phase="3" duration="10" unit="second">
+        <arrivalphase phase="3" duration="60" unit="second">
             <users arrivalrate="4" unit="second"/>
         </arrivalphase>
-        <arrivalphase phase="4" duration="10" unit="second">
+        <arrivalphase phase="4" duration="60" unit="second">
             <users arrivalrate="8" unit="second"/>
         </arrivalphase>
-        <arrivalphase phase="5" duration="10" unit="second">
+        <arrivalphase phase="5" duration="60" unit="second">
             <users arrivalrate="16" unit="second"/>
         </arrivalphase>
-        <arrivalphase phase="6" duration="10" unit="second">
+        <arrivalphase phase="6" duration="60" unit="second">
             <users arrivalrate="32" unit="second"/>
         </arrivalphase>
-        <arrivalphase phase="7" duration="10" unit="second">
+        <arrivalphase phase="7" duration="60" unit="second">
             <users arrivalrate="64" unit="second"/>
         </arrivalphase>
     </load>
     <sessions>
                 <!-- User creates and views an event -->
-        <session name="create_and_view_event" probability="25" type="ts_http">
+        <session name="create_and_view_event" probability="20" type="ts_http">
             <!-- Register account -->
             <request subst="true">
                 <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
@@ -65,7 +65,7 @@
         </session>
 
         <!-- User views a random event and leaves a comment -->
-        <session name="view_and_comment_event" probability="25" type="ts_http">
+        <session name="view_and_comment_event" probability="20" type="ts_http">
            <!-- Register account -->
             <request subst="true">
                 <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
@@ -109,7 +109,7 @@
         </session>
 
         <!-- User registers, views events, views a specific event, makes an RSVP, and gets the number of RSVPs -->
-        <session name="register_view_rsvp" probability="25" type="ts_http">
+        <session name="register_view_rsvp" probability="20" type="ts_http">
             <!-- Register account -->
             <request subst="true">
                 <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
@@ -152,7 +152,7 @@
         </session>
 
         <!-- User registers, views events, views a specific event, invites another user, and checks sent invites -->
-        <session name="register_view_invite" probability="25" type="ts_http">
+        <session name="register_view_invite" probability="20" type="ts_http">
             <!-- Register account -->
             <request subst="true">
                 <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
@@ -196,7 +196,7 @@
         </session>
 
         <!-- User registers, follows another user, and checks followed users -->
-        <session name="register_follow_check" probability="25" type="ts_http">
+        <session name="register_follow_check" probability="20" type="ts_http">
             <!-- Register account -->
             <request subst="true">
                 <dyn_variable name="token" re='\"token\": \"([^\"]+)\"'/>
