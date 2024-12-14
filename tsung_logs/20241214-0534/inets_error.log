@@ -1,0 +1,40 @@
+[14/Dec/2024:05:36:09 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62261, Reason: [{statuscode,413},{description,"Request Entity Too Large"},{details,{max_size,20}}]
+[14/Dec/2024:05:36:09 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62263, Reason: [{statuscode,413},{description,"Request Entity Too Large"},{details,{max_size,20}}]
+[14/Dec/2024:05:36:10 -0000] access to /favicon.ico failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/favicon.ico: File not found"
+[14/Dec/2024:05:36:10 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /favicon.ico, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62267, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:36:13 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62272, Reason: [{statuscode,413},{description,"Request Entity Too Large"},{details,{max_size,20}}]
+[14/Dec/2024:05:36:13 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62277, Reason: [{statuscode,413},{description,"Request Entity Too Large"},{details,{max_size,20}}]
+[14/Dec/2024:05:36:13 -0000] access to /assets/ico/favicon.ico failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/assets/ico/favicon.ico: File not found"
+[14/Dec/2024:05:36:13 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /assets/ico/favicon.ico, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62276, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:36:20 -0000] access to /csv_data/graphes-Transactions-mean.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Transactions-mean.csv: File not found"
+[14/Dec/2024:05:36:20 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Transactions-mean.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62288, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:36:20 -0000] access to /csv_data/graphes-Transactions-rate.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Transactions-rate.csv: File not found"
+[14/Dec/2024:05:36:20 -0000] access to /csv_data/graphes-Perfs-mean.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Perfs-mean.csv: File not found"
+[14/Dec/2024:05:36:20 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Transactions-rate.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62285, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:36:20 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Perfs-mean.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62289, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:36:20 -0000] access to /csv_data/graphes-Size-rate.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Size-rate.csv: File not found"
+[14/Dec/2024:05:36:20 -0000] access to /csv_data/graphes-Perfs-rate.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Perfs-rate.csv: File not found"
+[14/Dec/2024:05:36:20 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Size-rate.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62286, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:36:20 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Perfs-rate.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62287, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:42:18 -0000] access to /csv_data/graphes-Size-rate.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Size-rate.csv: File not found"
+[14/Dec/2024:05:42:18 -0000] access to /csv_data/graphes-Transactions-rate.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Transactions-rate.csv: File not found"
+[14/Dec/2024:05:42:18 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Size-rate.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62456, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:42:18 -0000] access to /csv_data/graphes-Perfs-mean.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Perfs-mean.csv: File not found"
+[14/Dec/2024:05:42:18 -0000] access to /csv_data/graphes-Perfs-rate.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Perfs-rate.csv: File not found"
+[14/Dec/2024:05:42:18 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Transactions-rate.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62458, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:42:18 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Perfs-mean.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62452, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:42:18 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Perfs-rate.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62453, Reason: [{statuscode,404},{description,"Object Not Found"}]
+[14/Dec/2024:05:42:18 -0000] access to /csv_data/graphes-Transactions-mean.csv failed for 72.205.115.187, reason: 
+"httpd_file: Can't access /home/ec2-user/.tsung/log/20241214-0534/csv_data/graphes-Transactions-mean.csv: File not found"
+[14/Dec/2024:05:42:18 -0000], Server: tsung_controller, Protocol: HTTP, Transport: TCP, URI: /csv_data/graphes-Transactions-mean.csv, Host: 172.31.37.175:8091, Peer: 72.205.115.187:62457, Reason: [{statuscode,404},{description,"Object Not Found"}]
